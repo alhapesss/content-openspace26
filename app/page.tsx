@@ -71,11 +71,11 @@ export default function Page() {
       {/* Header */}
       <header className="border-b border-border px-6 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-accent">Content Command Center</h1>
+          <h1 className="text-3xl font-bold text-[#0036ff]">Social Media Openspace!</h1>
           <div className="flex items-center gap-4">
             <Button
               onClick={handleNewContent}
-              className="bg-accent text-background hover:bg-accent/90"
+              className="font-mono text-xs font-extrabold uppercase tracking-wider bg-[#c1ff1a] text-[#0a0a0a] hover:brightness-105 transition-all"
               size="sm"
             >
               + New Content
