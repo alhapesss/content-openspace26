@@ -44,6 +44,10 @@ export function NotificationCenter() {
         return 'text-blue-400'
       case 'team_mention':
         return 'text-purple-400'
+      case 'approval_needed':
+        return 'text-[#0036ff]'
+      case 'approval_result':
+        return 'text-[#c1ff1a]'
       default:
         return 'text-gray-400'
     }
@@ -125,7 +129,11 @@ export function NotificationCenter() {
                                 ? '📝'
                                 : notification.type === 'team_mention'
                                   ? '@'
-                                  : '📢'}
+                                  : notification.type === 'approval_needed'
+                                    ? '🔍'
+                                    : notification.type === 'approval_result'
+                                      ? '✅'
+                                      : '📢'}
                           </span>
                           <p className="text-sm font-medium text-foreground truncate">
                             {notification.title}

@@ -42,7 +42,9 @@ export function useNotificationsMonitor() {
     // Check for status changes
     prevItemsRef.current.forEach((prevItem) => {
       const currentItem = items.find((i) => i.id === prevItem.id)
-      if (currentItem && currentItem.status !== prevItem.status) {
+      if (!currentItem) return
+
+      if (currentItem.status !== prevItem.status) {
         const statusChangeNotif = createStatusChangeNotification(
           currentItem,
           prevItem.status,
@@ -51,7 +53,6 @@ export function useNotificationsMonitor() {
         )
         addNotification(statusChangeNotif)
 
-        // Also log as activity
         addActivity({
           id: crypto.getRandomValues(new Uint8Array(16)).join(''),
           type: 'status_changed',
@@ -61,7 +62,40 @@ export function useNotificationsMonitor() {
           newValue: currentItem.status,
           createdAt: Date.now(),
         })
+
+        // Masuk stage Review -> kasih notif "perlu di-approve"
+        if (currentItem.status === 'Review') {
+          addNotification(
+            createNotification(
+              'approval_needed',
+              `Perlu Approval: ${currentItem.title}`,
+              `Konten ini masuk stage Review, tunggu persetujuan sebelum lanjut ke Terjadwal.`,
+              currentItem.id
+            )
+          )
+        }
       }
+
+      // Log perubahan field penting lainnya (title, caption, notes, link, dsb)
+      const trackedFields: Array<keyof typeof currentItem> = [
+        'title', 'caption', 'notes', 'driveLink', 'briefPosting', 'date', 'pic', 'platform', 'format',
+      ]
+      trackedFields.forEach((f) => {
+        const oldVal = prevItem[f]
+        const newVal = currentItem[f]
+        if (oldVal !== newVal && (oldVal || newVal)) {
+          addActivity({
+            id: crypto.getRandomValues(new Uint8Array(16)).join(''),
+            type: 'updated',
+            contentId: currentItem.id,
+            actorId: 'System',
+            field: f as string,
+            oldValue: oldVal != null ? String(oldVal) : '',
+            newValue: newVal != null ? String(newVal) : '',
+            createdAt: Date.now(),
+          })
+        }
+      })
     })
 
     prevItemsRef.current = items

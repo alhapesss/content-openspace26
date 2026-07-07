@@ -49,13 +49,13 @@ export function CalendarView({ items, onOpenItem }: CalendarViewProps) {
         <div className="flex gap-2">
           <button
             onClick={prevMonth}
-            className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+            className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
           >
             &larr; Sebelumnya
           </button>
           <button
             onClick={nextMonth}
-            className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+            className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
           >
             Berikutnya &rarr;
           </button>
@@ -64,7 +64,7 @@ export function CalendarView({ items, onOpenItem }: CalendarViewProps) {
 
       <div className="grid grid-cols-7 gap-1.5">
         {DOWS.map((d) => (
-          <div key={d} className="font-mono text-[10px] uppercase text-[#9a9a94] text-center pb-1">
+          <div key={d} className="font-mono text-[10px] uppercase text-[#b8b8b0] text-center pb-1">
             {d}
           </div>
         ))}
@@ -81,13 +81,13 @@ export function CalendarView({ items, onOpenItem }: CalendarViewProps) {
               key={cell.dateStr}
               className={`min-h-[88px] rounded-sm border p-1.5 text-[11px] transition-colors ${
                 isToday
-                  ? 'border-[#c1ff1a] border-2 bg-[#1c1c1c]'
-                  : 'border-[#3a3a36] bg-[#1c1c1c]'
+                  ? 'border-[#c1ff1a] border-2 bg-[#262622]'
+                  : 'border-[#4d4d47] bg-[#262622]'
               }`}
             >
               <div
                 className={`font-mono mb-1 ${
-                  isToday ? 'text-[#c1ff1a] font-extrabold' : 'text-[#9a9a94]'
+                  isToday ? 'text-[#c1ff1a] font-extrabold' : 'text-[#b8b8b0]'
                 }`}
               >
                 {cell.day}

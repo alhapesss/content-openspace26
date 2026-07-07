@@ -27,6 +27,10 @@ export function ActivityFeed({ contentId }: ActivityFeedProps) {
         return '📊'
       case 'commented':
         return '💬'
+      case 'approved':
+        return '✅'
+      case 'rejected':
+        return '⛔'
       default:
         return '📌'
     }
@@ -36,17 +40,46 @@ export function ActivityFeed({ contentId }: ActivityFeedProps) {
     const { type, field, oldValue, newValue } = activity
     switch (type) {
       case 'created':
-        return 'Created this content'
+        return 'Membuat konten ini'
       case 'commented':
-        return 'Added a comment'
+        return 'Menambahkan komentar'
       case 'status_changed':
-        return `Changed status from "${oldValue}" to "${newValue}"`
-      case 'updated':
-        return `Updated ${field}`
+        return `Stage diubah: "${oldValue}" → "${newValue}"`
+      case 'approved':
+        return 'Menyetujui konten ini (lanjut ke Terjadwal)'
+      case 'rejected':
+        return `Menolak konten ini${newValue ? ` — alasan: ${newValue}` : ''} (balik ke Draft)`
+      case 'updated': {
+        const label = field ? formatFieldName(field) : 'field'
+        if (oldValue !== undefined && newValue !== undefined) {
+          const oldShort = truncate(oldValue)
+          const newShort = truncate(newValue)
+          return `${label} diubah: "${oldShort}" → "${newShort}"`
+        }
+        return `Mengubah ${label}`
+      }
       default:
-        return 'Updated'
+        return 'Ada perubahan'
     }
   }
+
+  const formatFieldName = (field: string): string => {
+    const map: Record<string, string> = {
+      title: 'Judul',
+      caption: 'Caption',
+      notes: 'Catatan',
+      driveLink: 'Link Drive',
+      briefPosting: 'Brief Posting',
+      date: 'Tanggal Publish',
+      pic: 'PIC',
+      platform: 'Platform',
+      format: 'Format',
+    }
+    return map[field] || field
+  }
+
+  const truncate = (val: string, max = 40): string =>
+    val.length > max ? `${val.slice(0, max)}…` : val || '(kosong)'
 
   if (sortedActivity.length === 0) {
     return (

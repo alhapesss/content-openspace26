@@ -9,7 +9,7 @@ import type { ContentItem, AccountData, AccountsMap } from '@/lib/types'
 import * as XLSX from 'xlsx'
 
 /* ─── shared helpers ─── */
-const selectCls = 'w-full bg-[#232323] border border-[#3a3a36] text-[#f2efe9] px-2.5 py-2 rounded-sm text-[13px] focus:outline-none focus:border-[#9a9a94]'
+const selectCls = 'w-full bg-[#2e2e2a] border border-[#4d4d47] text-[#f2efe9] px-2.5 py-2 rounded-sm text-[13px] focus:outline-none focus:border-[#b8b8b0]'
 const inputCls = selectCls
 const textareaCls = `${inputCls} resize-vertical min-h-[60px]`
 
@@ -20,7 +20,7 @@ function ModalWrap({ open, onClose, children }: { open: boolean; onClose: () => 
       className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-[#1c1c1c] border border-[#3a3a36] rounded-md p-5 w-full max-w-[420px] max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#262622] border border-[#4d4d47] rounded-md p-5 w-full max-w-[420px] max-h-[90vh] overflow-y-auto">
         {children}
       </div>
     </div>
@@ -34,7 +34,7 @@ function ModalTitle({ children }: { children: React.ReactNode }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <label className="block font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] mb-1.5">{label}</label>
+      <label className="block font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] mb-1.5">{label}</label>
       {children}
     </div>
   )
@@ -81,9 +81,9 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
     <ModalWrap open={open} onClose={onClose}>
       <ModalTitle>Tim / PIC Terdaftar</ModalTitle>
       <div className="mb-3 grid grid-cols-[1fr_0.8fr_1fr_32px] gap-x-2 gap-y-0 items-center">
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] pb-1">Nama</span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] pb-1">Role</span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] pb-1">No. WA</span>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] pb-1">Nama</span>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] pb-1">Role</span>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] pb-1">No. WA</span>
         <span />
       </div>
       <div className="flex flex-col gap-2 max-h-[40vh] overflow-y-auto pr-0.5">
@@ -114,7 +114,7 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
             />
             <button
               onClick={() => removeRow(idx)}
-              className="w-8 h-8 flex items-center justify-center text-[#9a9a94] hover:text-[#ff00ae] transition-colors rounded-sm border border-[#3a3a36] hover:border-[#ff00ae] text-base leading-none"
+              className="w-8 h-8 flex items-center justify-center text-[#b8b8b0] hover:text-[#ff00ae] transition-colors rounded-sm border border-[#4d4d47] hover:border-[#ff00ae] text-base leading-none"
               aria-label="Hapus"
             >
               ×
@@ -124,12 +124,12 @@ export function TeamModal({ open, onClose }: { open: boolean; onClose: () => voi
       </div>
       <button
         onClick={addRow}
-        className="mt-3 font-mono text-[11px] uppercase tracking-wider text-[#9a9a94] border border-dashed border-[#3a3a36] w-full py-1.5 rounded-sm hover:border-[#9a9a94] hover:text-[#f2efe9] transition-colors"
+        className="mt-3 font-mono text-[11px] uppercase tracking-wider text-[#b8b8b0] border border-dashed border-[#4d4d47] w-full py-1.5 rounded-sm hover:border-[#b8b8b0] hover:text-[#f2efe9] transition-colors"
       >
         + Tambah Anggota
       </button>
       <div className="flex justify-end gap-2 mt-4">
-        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm">Batal</button>
+        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm">Batal</button>
         <button onClick={handleSave} className="font-mono text-xs font-extrabold uppercase tracking-wider bg-[#c1ff1a] text-[#0a0a0a] px-4 py-2 rounded-sm">Simpan</button>
       </div>
     </ModalWrap>
@@ -190,7 +190,7 @@ export function AccountsModal({ open, onClose }: { open: boolean; onClose: () =>
         </div>
       ))}
       <div className="flex justify-end gap-2 mt-4">
-        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm">Batal</button>
+        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm">Batal</button>
         <button onClick={handleSave} className="font-mono text-xs font-extrabold uppercase tracking-wider bg-[#c1ff1a] text-[#0a0a0a] px-4 py-2 rounded-sm">Simpan</button>
       </div>
     </ModalWrap>
@@ -290,7 +290,7 @@ export function ExportModal({
         </div>
       )}
       <div className="flex justify-between mt-4 gap-2">
-        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm">Batal</button>
+        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm">Batal</button>
         <button onClick={handleExport} className="font-mono text-xs font-extrabold uppercase tracking-wider bg-[#c1ff1a] text-[#0a0a0a] px-4 py-2 rounded-sm">Export</button>
       </div>
     </ModalWrap>
@@ -319,22 +319,22 @@ export function DonePickerModal({
   return (
     <ModalWrap open={open} onClose={onClose}>
       <ModalTitle>Tandai Konten Selesai</ModalTitle>
-      <p className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] mb-3">
+      <p className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] mb-3">
         Pilih konten yang sudah jadi (belum Publish)
       </p>
       <div className="flex flex-col gap-1.5 max-h-[50vh] overflow-y-auto">
         {candidates.length === 0 ? (
-          <p className="text-xs text-[#9a9a94] text-center py-4">Gak ada konten Draft/Review/Terjadwal.</p>
+          <p className="text-xs text-[#b8b8b0] text-center py-4">Gak ada konten Draft/Review/Terjadwal.</p>
         ) : (
           candidates.map((item) => (
             <button
               key={item.id}
               onClick={() => { onSelect(item.id); onClose() }}
-              className="text-left rounded-sm border border-[#3a3a36] bg-[#232323] p-2.5 hover:border-[#9a9a94] transition-colors"
+              className="text-left rounded-sm border border-[#4d4d47] bg-[#2e2e2a] p-2.5 hover:border-[#b8b8b0] transition-colors"
               style={{ borderLeft: `4px solid ${FORMAT_COLORS[item.format] || '#f2efe9'}` }}
             >
               <div className="font-bold text-[13px] text-[#f2efe9]">{item.title || '(tanpa judul)'}</div>
-              <div className="font-mono text-[10px] text-[#9a9a94] uppercase mt-0.5">
+              <div className="font-mono text-[10px] text-[#b8b8b0] uppercase mt-0.5">
                 {item.status} · {item.date || '-'} · {item.platform}
               </div>
             </button>
@@ -342,7 +342,7 @@ export function DonePickerModal({
         )}
       </div>
       <div className="flex justify-end mt-4">
-        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm">Batal</button>
+        <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm">Batal</button>
       </div>
     </ModalWrap>
   )
@@ -363,7 +363,7 @@ export function ResetConfirmModal({
       <div className="text-center">
         <p className="text-[13px] mb-5">Yakin hapus SEMUA data board? Ini tidak bisa dibatalkan.</p>
         <div className="flex gap-2 justify-center">
-          <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm">Batal</button>
+          <button onClick={onClose} className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm">Batal</button>
           <button onClick={onConfirm} className="font-mono text-xs uppercase tracking-wider border border-[#ff00ae] text-[#ff00ae] px-3 py-2 rounded-sm hover:bg-[#ff00ae]/10 transition-colors">Ya, lanjut</button>
         </div>
       </div>

@@ -89,6 +89,22 @@ export function formatNotificationTime(createdAt: number): string {
   })
 }
 
+export function createApprovalResultNotification(
+  item: ContentItem,
+  approved: boolean,
+  actorName: string,
+  reason?: string
+): Notification {
+  return createNotification(
+    'approval_result',
+    approved ? `Disetujui: ${item.title}` : `Ditolak: ${item.title}`,
+    approved
+      ? `${actorName} menyetujui konten ini, lanjut ke Terjadwal.`
+      : `${actorName} menolak konten ini${reason ? ` — alasan: ${reason}` : ''}. Balik ke Draft.`,
+    item.id
+  )
+}
+
 export function getUnreadCount(notifications: Notification[]): number {
   return notifications.filter((n) => !n.read).length
 }

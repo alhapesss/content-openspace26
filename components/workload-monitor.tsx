@@ -34,35 +34,35 @@ export function WorkloadMonitor() {
   }
 
   const statusColors = {
-    overload: { bg: '#ff00ae', text: '#1c1c1c' },
+    overload: { bg: '#ff00ae', text: '#262622' },
     caution: { bg: '#0036ff', text: '#f2efe9' },
-    normal: { bg: '#c1ff1a', text: '#1c1c1c' },
+    normal: { bg: '#c1ff1a', text: '#262622' },
   }
 
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[#232323] border border-[#3a3a36] p-3 rounded">
-          <p className="text-xs font-mono text-[#9a9a94] mb-1">TOTAL MEMBERS</p>
+        <div className="bg-[#2e2e2a] border border-[#4d4d47] p-3 rounded">
+          <p className="text-xs font-mono text-[#b8b8b0] mb-1">TOTAL MEMBERS</p>
           <p className="text-2xl font-bold text-[#c1ff1a]">{workloadData.members.length}</p>
         </div>
-        <div className="bg-[#232323] border border-[#3a3a36] p-3 rounded">
-          <p className="text-xs font-mono text-[#9a9a94] mb-1">AVG WORKLOAD</p>
+        <div className="bg-[#2e2e2a] border border-[#4d4d47] p-3 rounded">
+          <p className="text-xs font-mono text-[#b8b8b0] mb-1">AVG WORKLOAD</p>
           <p className="text-2xl font-bold text-[#c1ff1a]">{workloadData.avgWorkload}</p>
         </div>
-        <div className="bg-[#232323] border border-[#3a3a36] p-3 rounded">
-          <p className="text-xs font-mono text-[#9a9a94] mb-1">OVERLOADED</p>
+        <div className="bg-[#2e2e2a] border border-[#4d4d47] p-3 rounded">
+          <p className="text-xs font-mono text-[#b8b8b0] mb-1">OVERLOADED</p>
           <p className="text-2xl font-bold text-[#ff00ae]">{workloadData.overloadedMembers.length}</p>
         </div>
       </div>
 
       {/* Member List */}
       <div className="space-y-2">
-        <p className="text-xs font-mono text-[#9a9a94] uppercase tracking-wider">TEAM WORKLOAD</p>
+        <p className="text-xs font-mono text-[#b8b8b0] uppercase tracking-wider">TEAM WORKLOAD</p>
 
         {workloadData.members.length === 0 ? (
-          <div className="text-center py-8 text-[#9a9a94] text-sm">
+          <div className="text-center py-8 text-[#b8b8b0] text-sm">
             No team members assigned yet
           </div>
         ) : (
@@ -87,11 +87,11 @@ export function WorkloadMonitor() {
                     >
                       {statusLabels[status as keyof typeof statusLabels]}
                     </div>
-                    <p className="text-sm font-mono text-[#9a9a94] w-8 text-right">{member.totalTasks}</p>
+                    <p className="text-sm font-mono text-[#b8b8b0] w-8 text-right">{member.totalTasks}</p>
                   </div>
 
                   {/* Workload Bar */}
-                  <div className="bg-[#232323] rounded overflow-hidden h-2 border border-[#3a3a36]">
+                  <div className="bg-[#2e2e2a] rounded overflow-hidden h-2 border border-[#4d4d47]">
                     <div
                       className={`h-full transition-all ${
                         status === 'overload'
@@ -107,7 +107,7 @@ export function WorkloadMonitor() {
                   {/* Status Breakdown */}
                   <div className="flex gap-1 flex-wrap text-xs">
                     {Object.entries(member.byStatus).map(([status, count]) => (
-                      <span key={status} className="px-2 py-1 bg-[#232323] border border-[#3a3a36] rounded text-[#9a9a94]">
+                      <span key={status} className="px-2 py-1 bg-[#2e2e2a] border border-[#4d4d47] rounded text-[#b8b8b0]">
                         {status}: {count}
                       </span>
                     ))}

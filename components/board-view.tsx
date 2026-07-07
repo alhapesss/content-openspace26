@@ -52,11 +52,11 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
         return (
           <div
             key={status}
-            className="min-w-[230px] flex-1 flex flex-col rounded-md border border-[#3a3a36] bg-[#1c1c1c]"
+            className="min-w-[230px] flex-1 flex flex-col rounded-md border border-[#4d4d47] bg-[#262622]"
           >
-            <div className="flex items-center justify-between px-3.5 py-3 border-b border-[#3a3a36]">
-              <span className="font-mono text-[11px] uppercase tracking-widest text-[#9a9a94]">{status}</span>
-              <span className="font-mono text-[11px] text-[#9a9a94]">{colItems.length}</span>
+            <div className="flex items-center justify-between px-3.5 py-3 border-b border-[#4d4d47]">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-[#b8b8b0]">{status}</span>
+              <span className="font-mono text-[11px] text-[#b8b8b0]">{colItems.length}</span>
             </div>
             <div
               className="flex-1 p-2.5 min-h-[120px]"
@@ -64,7 +64,7 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
               onDrop={() => handleDrop(status)}
             >
               {colItems.length === 0 && (
-                <p className="text-center text-xs text-[#9a9a94] py-2">Kosong</p>
+                <p className="text-center text-xs text-[#b8b8b0] py-2">Kosong</p>
               )}
               {colItems.map((item) => (
                 <BoardCard
@@ -113,21 +113,21 @@ function BoardCard({
       draggable
       onDragStart={onDragStart}
       onClick={onOpen}
-      className="mb-2 cursor-grab active:cursor-grabbing rounded-sm border border-[#3a3a36] bg-[#232323] p-2.5 text-sm hover:border-[#9a9a94] transition-colors"
+      className="mb-2 cursor-grab active:cursor-grabbing rounded-sm border border-[#4d4d47] bg-[#2e2e2a] p-2.5 text-sm hover:border-[#b8b8b0] transition-colors"
       style={{ borderLeft: `4px solid ${borderColor}` }}
     >
       <div className="font-bold mb-1 text-[13px] text-[#f2efe9] leading-snug">
         {item.title || '(tanpa judul)'}
       </div>
-      <div className="font-mono text-[10px] uppercase text-[#9a9a94] tracking-wide">
+      <div className="font-mono text-[10px] uppercase text-[#b8b8b0] tracking-wide">
         {item.format}{item.subformat ? ` · ${item.subformat}` : ''}{item.pillar ? ` · ${item.pillar}` : ''}
       </div>
-      <div className="text-[11px] text-[#9a9a94] mt-1">
+      <div className="text-[11px] text-[#b8b8b0] mt-1">
         {item.date || 'Belum ada tanggal'}{' · '}{item.pic || 'Belum ada PIC'}
       </div>
-      {crew && <div className="text-[11px] text-[#9a9a94] mt-0.5">{crew}</div>}
+      {crew && <div className="text-[11px] text-[#b8b8b0] mt-0.5">{crew}</div>}
       {assetCount > 0 && (
-        <div className="text-[11px] text-[#9a9a94] mt-0.5">{assetCount} aset terlampir</div>
+        <div className="text-[11px] text-[#b8b8b0] mt-0.5">{assetCount} aset terlampir</div>
       )}
     </div>
   )

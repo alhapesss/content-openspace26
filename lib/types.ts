@@ -34,6 +34,11 @@ export interface ContentItem {
   shares: number
   saves: number
   createdAt: number
+  // Approval workflow
+  approvalStatus?: 'pending' | 'approved' | 'rejected'
+  approvedBy?: string
+  approvedAt?: number
+  rejectionReason?: string
 }
 
 export interface AccountData {
@@ -47,7 +52,7 @@ export type AccountsMap = Record<string, AccountData>
 // Notifications & Reminders
 export interface Notification {
   id: string
-  type: 'deadline' | 'status_change' | 'team_mention' | 'custom'
+  type: 'deadline' | 'status_change' | 'team_mention' | 'custom' | 'approval_needed' | 'approval_result'
   title: string
   message: string
   contentId?: string
@@ -75,7 +80,7 @@ export interface Comment {
 
 export interface Activity {
   id: string
-  type: 'created' | 'updated' | 'status_changed' | 'commented'
+  type: 'created' | 'updated' | 'status_changed' | 'commented' | 'approved' | 'rejected'
   contentId: string
   actorId: string
   field?: string

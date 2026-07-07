@@ -33,6 +33,10 @@ export function contentToRow(c: ContentItem) {
     shares: c.shares,
     saves: c.saves,
     created_at: c.createdAt,
+    approval_status: c.approvalStatus ?? null,
+    approved_by: c.approvedBy ?? null,
+    approved_at: c.approvedAt ?? null,
+    rejection_reason: c.rejectionReason ?? null,
   }
 }
 
@@ -67,6 +71,10 @@ export function rowToContent(r: any): ContentItem {
     shares: r.shares ?? 0,
     saves: r.saves ?? 0,
     createdAt: r.created_at,
+    approvalStatus: r.approval_status ?? undefined,
+    approvedBy: r.approved_by ?? undefined,
+    approvedAt: r.approved_at ?? undefined,
+    rejectionReason: r.rejection_reason ?? undefined,
   }
 }
 

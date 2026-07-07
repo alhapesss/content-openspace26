@@ -98,19 +98,19 @@ export default function Page() {
           <div className="flex gap-2">
             <button
               onClick={() => setTeamOpen(true)}
-              className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+              className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
             >
               Tim
             </button>
             <button
               onClick={() => setAccountsOpen(true)}
-              className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+              className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
             >
               Akun
             </button>
             <button
               onClick={() => setExportOpen(true)}
-              className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+              className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
             >
               Ekspor
             </button>
@@ -233,7 +233,7 @@ export default function Page() {
         onToast={setToastMsg}
       />
       {toastMsg && (
-        <div className="fixed bottom-4 right-4 font-mono text-xs bg-[#1c1c1c] border border-[#3a3a36] text-[#f2efe9] px-4 py-2 rounded-sm z-50">
+        <div className="fixed bottom-4 right-4 font-mono text-xs bg-[#262622] border border-[#4d4d47] text-[#f2efe9] px-4 py-2 rounded-sm z-50">
           {toastMsg}
         </div>
       )}

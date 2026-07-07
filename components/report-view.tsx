@@ -34,16 +34,16 @@ export function ReportView() {
           { n: totalEngagement.toLocaleString('id-ID'), l: 'Total Engagement' },
           { n: `${avgRate.toFixed(1)}%`, l: 'Avg Engagement Rate' },
         ].map((s) => (
-          <div key={s.l} className="bg-[#1c1c1c] border border-[#3a3a36] rounded-sm px-4 py-2.5 min-w-[120px]">
+          <div key={s.l} className="bg-[#262622] border border-[#4d4d47] rounded-sm px-4 py-2.5 min-w-[120px]">
             <div className="text-[22px] font-extrabold">{s.n}</div>
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94]">{s.l}</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0]">{s.l}</div>
           </div>
         ))}
       </div>
 
       {/* Workload */}
       {workloadEntries.length > 0 && (
-        <details open className="border border-[#3a3a36] rounded-md px-4 py-3.5 mb-3.5">
+        <details open className="border border-[#4d4d47] rounded-md px-4 py-3.5 mb-3.5">
           <summary className="cursor-pointer font-mono text-[13px] uppercase tracking-wider mb-3 text-[#f2efe9]">
             Workload Graphic Design (konten belum Publish)
           </summary>
@@ -52,8 +52,8 @@ export function ReportView() {
             const isOverload = count >= OVERLOAD_AT
             return (
               <div key={name} className="flex items-center gap-2.5 mb-2 text-xs">
-                <div className="w-[110px] shrink-0 font-mono text-[10px] uppercase text-[#9a9a94] truncate">{name}</div>
-                <div className="flex-1 h-4 bg-[#232323] rounded-sm overflow-hidden">
+                <div className="w-[110px] shrink-0 font-mono text-[10px] uppercase text-[#b8b8b0] truncate">{name}</div>
+                <div className="flex-1 h-4 bg-[#2e2e2a] rounded-sm overflow-hidden">
                   <div
                     className="h-full rounded-sm transition-all"
                     style={{ width: `${pct}%`, background: isOverload ? '#ff00ae' : '#c1ff1a' }}
@@ -80,28 +80,28 @@ export function ReportView() {
         const top = [...pubP].sort((a, b) => engagementOf(b) - engagementOf(a)).slice(0, 5)
 
         return (
-          <details key={platform} open className="border border-[#3a3a36] rounded-md px-4 py-3.5 mb-3.5">
+          <details key={platform} open className="border border-[#4d4d47] rounded-md px-4 py-3.5 mb-3.5">
             <summary className="cursor-pointer font-mono text-[13px] uppercase tracking-wider mb-3 text-[#f2efe9]">
               {platform}
             </summary>
 
             {acc && (
               <div className="flex flex-wrap gap-2.5 mb-3">
-                <div className="bg-[#1c1c1c] border border-[#3a3a36] rounded-sm px-4 py-2.5 min-w-[120px]">
+                <div className="bg-[#262622] border border-[#4d4d47] rounded-sm px-4 py-2.5 min-w-[120px]">
                   <div className="text-[22px] font-extrabold">{(acc.followers || 0).toLocaleString('id-ID')}</div>
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94]">Followers</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0]">Followers</div>
                   {hist.length > 1 && (
                     <div
                       className="font-mono text-[11px] mt-1"
-                      style={{ color: growth > 0 ? '#c1ff1a' : growth < 0 ? '#ff00ae' : '#9a9a94' }}
+                      style={{ color: growth > 0 ? '#c1ff1a' : growth < 0 ? '#ff00ae' : '#b8b8b0' }}
                     >
                       {growth > 0 ? '+' : ''}{growth.toLocaleString('id-ID')} sejak {hist[0].date}
                     </div>
                   )}
                 </div>
-                <div className="bg-[#1c1c1c] border border-[#3a3a36] rounded-sm px-4 py-2.5 min-w-[120px]">
+                <div className="bg-[#262622] border border-[#4d4d47] rounded-sm px-4 py-2.5 min-w-[120px]">
                   <div className="text-[22px] font-extrabold">{(acc.following || 0).toLocaleString('id-ID')}</div>
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94]">Following</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0]">Following</div>
                 </div>
               </div>
             )}
@@ -113,9 +113,9 @@ export function ReportView() {
                 { n: pEng.toLocaleString('id-ID'), l: 'Engagement' },
                 { n: `${pRate.toFixed(1)}%`, l: 'Eng. Rate' },
               ].map((s) => (
-                <div key={s.l} className="bg-[#1c1c1c] border border-[#3a3a36] rounded-sm px-4 py-2.5 min-w-[100px]">
+                <div key={s.l} className="bg-[#262622] border border-[#4d4d47] rounded-sm px-4 py-2.5 min-w-[100px]">
                   <div className="text-[22px] font-extrabold">{s.n}</div>
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94]">{s.l}</div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0]">{s.l}</div>
                 </div>
               ))}
             </div>
@@ -126,32 +126,32 @@ export function ReportView() {
                   <thead>
                     <tr>
                       {['Judul', 'Format', 'Views', 'Engagement', 'Eng. Rate'].map((h) => (
-                        <th key={h} className="text-left font-mono text-[10px] uppercase text-[#9a9a94] tracking-wider px-2 py-1.5 border-b border-[#3a3a36]">{h}</th>
+                        <th key={h} className="text-left font-mono text-[10px] uppercase text-[#b8b8b0] tracking-wider px-2 py-1.5 border-b border-[#4d4d47]">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {top.map((item) => (
-                      <tr key={item.id} className="hover:bg-[#232323] transition-colors">
-                        <td className="px-2 py-1.5 border-b border-[#3a3a36] text-[#f2efe9]">{item.title}</td>
-                        <td className="px-2 py-1.5 border-b border-[#3a3a36] text-[#9a9a94]">{item.format}</td>
-                        <td className="px-2 py-1.5 border-b border-[#3a3a36] font-mono">{(Number(item.views) || 0).toLocaleString('id-ID')}</td>
-                        <td className="px-2 py-1.5 border-b border-[#3a3a36] font-mono">{engagementOf(item).toLocaleString('id-ID')}</td>
-                        <td className="px-2 py-1.5 border-b border-[#3a3a36] font-mono">{engagementRateOf(item).toFixed(1)}%</td>
+                      <tr key={item.id} className="hover:bg-[#2e2e2a] transition-colors">
+                        <td className="px-2 py-1.5 border-b border-[#4d4d47] text-[#f2efe9]">{item.title}</td>
+                        <td className="px-2 py-1.5 border-b border-[#4d4d47] text-[#b8b8b0]">{item.format}</td>
+                        <td className="px-2 py-1.5 border-b border-[#4d4d47] font-mono">{(Number(item.views) || 0).toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-1.5 border-b border-[#4d4d47] font-mono">{engagementOf(item).toLocaleString('id-ID')}</td>
+                        <td className="px-2 py-1.5 border-b border-[#4d4d47] font-mono">{engagementRateOf(item).toFixed(1)}%</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-xs text-[#9a9a94] py-2">Belum ada konten publish di {platform}.</p>
+              <p className="text-xs text-[#b8b8b0] py-2">Belum ada konten publish di {platform}.</p>
             )}
           </details>
         )
       })}
 
       {relevantPlatforms.length === 0 && (
-        <p className="text-sm text-[#9a9a94] py-6 text-center">Belum ada konten atau data akun.</p>
+        <p className="text-sm text-[#b8b8b0] py-6 text-center">Belum ada konten atau data akun.</p>
       )}
     </div>
   )

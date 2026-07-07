@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useContentStore } from '@/lib/store'
 import { CommentsPanel } from './comments-panel'
 import { ActivityFeed } from './activity-feed'
+import { usePresence } from '@/hooks/use-presence'
+import { getViewerName } from '@/lib/viewer'
+import { createApprovalResultNotification } from '@/lib/notifications-utils'
 import {
   STATUSES,
   FORMATS,
@@ -25,19 +28,19 @@ interface ContentModalProps {
 function Field({ label, children, extra }: { label: React.ReactNode; children: React.ReactNode; extra?: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <label className="block font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] mb-1.5">{label}</label>
+      <label className="block font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] mb-1.5">{label}</label>
       {children}
       {extra}
     </div>
   )
 }
 
-const inputCls = 'w-full bg-[#232323] border border-[#3a3a36] text-[#f2efe9] px-2.5 py-2 rounded-sm text-[13px] focus:outline-none focus:border-[#9a9a94] transition-colors'
+const inputCls = 'w-full bg-[#2e2e2a] border border-[#4d4d47] text-[#f2efe9] px-2.5 py-2 rounded-sm text-[13px] focus:outline-none focus:border-[#b8b8b0] transition-colors'
 const textareaCls = `${inputCls} resize-vertical min-h-[60px]`
 const selectCls = `${inputCls} cursor-pointer`
 
 export function ContentModal({ item, onClose }: ContentModalProps) {
-  const { addItem, updateItem, deleteItem, team, items } = useContentStore()
+  const { addItem, updateItem, deleteItem, team, items, addActivity, addNotification } = useContentStore()
 
   const [form, setForm] = useState<Omit<ContentItem, 'id' | 'createdAt'>>(blankItem())
   const [toast, setToast] = useState<string | null>(null)
@@ -47,7 +50,12 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [showActivity, setShowActivity] = useState(false)
   const [carouselSlideCount, setCarouselSlideCount] = useState(3)
+  const [rejectReason, setRejectReason] = useState('')
+  const [showRejectBox, setShowRejectBox] = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const viewerName = getViewerName()
+  const otherViewers = usePresence(item?.id ?? null, viewerName)
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -72,6 +80,8 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
     setShowConfirmDelete(false)
     setScriptCopied(false)
     setCaptionCopied(false)
+    setShowRejectBox(false)
+    setRejectReason('')
   }, [item])
 
   const set = (key: keyof typeof form, val: string | number | string[]) =>
@@ -108,6 +118,51 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
     if (!item) return
     if (!showConfirmDelete) { setShowConfirmDelete(true); return }
     deleteItem(item.id)
+    onClose()
+  }
+
+  const handleApprove = () => {
+    if (!item) return
+    const now = Date.now()
+    updateItem(item.id, {
+      status: 'Terjadwal',
+      approvalStatus: 'approved',
+      approvedBy: viewerName,
+      approvedAt: now,
+      rejectionReason: '',
+    })
+    addActivity({
+      id: uid(),
+      type: 'approved',
+      contentId: item.id,
+      actorId: viewerName,
+      createdAt: now,
+    })
+    addNotification(createApprovalResultNotification({ ...item, title: item.title }, true, viewerName))
+    showToast('Disetujui, lanjut ke Terjadwal.')
+    onClose()
+  }
+
+  const handleReject = () => {
+    if (!item) return
+    if (!showRejectBox) { setShowRejectBox(true); return }
+    if (!rejectReason.trim()) { showToast('Isi alasan penolakan dulu.'); return }
+    const now = Date.now()
+    updateItem(item.id, {
+      status: 'Draft',
+      approvalStatus: 'rejected',
+      rejectionReason: rejectReason.trim(),
+    })
+    addActivity({
+      id: uid(),
+      type: 'rejected',
+      contentId: item.id,
+      actorId: viewerName,
+      newValue: rejectReason.trim(),
+      createdAt: now,
+    })
+    addNotification(createApprovalResultNotification(item, false, viewerName, rejectReason.trim()))
+    showToast('Ditolak, balik ke Draft.')
     onClose()
   }
 
@@ -165,7 +220,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
       className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-[#1c1c1c] border border-[#3a3a36] rounded-md p-5 w-full max-w-[480px] max-h-[92vh] overflow-y-auto relative">
+      <div className="bg-[#262622] border border-[#4d4d47] rounded-md p-5 w-full max-w-[480px] max-h-[92vh] overflow-y-auto relative">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-extrabold uppercase tracking-wide">
             {item && item.id ? 'Edit Konten' : 'Konten Baru'}
@@ -174,14 +229,14 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
             <div className="flex gap-2">
               <button
                 onClick={() => setCommentsOpen(true)}
-                className="text-xs px-2 py-1 rounded border border-[#3a3a36] hover:border-[#9a9a94] transition-colors"
+                className="text-xs px-2 py-1 rounded border border-[#4d4d47] hover:border-[#b8b8b0] transition-colors"
                 title="Comments"
               >
                 💬
               </button>
               <button
                 onClick={() => setShowActivity(!showActivity)}
-                className="text-xs px-2 py-1 rounded border border-[#3a3a36] hover:border-[#9a9a94] transition-colors"
+                className="text-xs px-2 py-1 rounded border border-[#4d4d47] hover:border-[#b8b8b0] transition-colors"
                 title="Activity"
               >
                 📊
@@ -190,9 +245,63 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           )}
         </div>
 
+        {item && item.id && otherViewers.length > 0 && (
+          <div className="mb-3 px-3 py-1.5 bg-[#0036ff]/10 border border-[#0036ff]/40 rounded text-[11px] text-[#0036ff]">
+            👀 Sedang dilihat juga oleh: {otherViewers.join(', ')}
+          </div>
+        )}
+
+        {item && item.id && form.status === 'Review' && (
+          <div className="mb-4 p-3 bg-[#2e2e2a] rounded border border-[#4d4d47]">
+            <p className="text-xs font-mono text-[#b8b8b0] mb-2">PERSETUJUAN — konten ini nunggu di-approve</p>
+            {item.approvalStatus === 'rejected' && item.rejectionReason && (
+              <p className="text-xs text-[#ff00ae] mb-2">Alasan penolakan sebelumnya: {item.rejectionReason}</p>
+            )}
+            {!showRejectBox ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleApprove}
+                  className="flex-1 font-mono text-xs font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-sm bg-[#c1ff1a] text-[#0a0a0a] hover:brightness-105 transition-all"
+                >
+                  ✅ Setujui
+                </button>
+                <button
+                  onClick={handleReject}
+                  className="flex-1 font-mono text-xs font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-sm bg-[#ff00ae] text-white hover:brightness-110 transition-all"
+                >
+                  ⛔ Tolak
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <textarea
+                  className={textareaCls}
+                  placeholder="Alasan penolakan (wajib diisi)..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleReject}
+                    className="flex-1 font-mono text-xs font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-sm bg-[#ff00ae] text-white hover:brightness-110 transition-all"
+                  >
+                    Kirim Penolakan
+                  </button>
+                  <button
+                    onClick={() => { setShowRejectBox(false); setRejectReason('') }}
+                    className="text-xs px-3 py-1.5 rounded border border-[#4d4d47] hover:border-[#b8b8b0] transition-colors"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {showActivity && item && item.id && (
-          <div className="mb-4 p-3 bg-[#232323] rounded border border-[#3a3a36]">
-            <p className="text-xs font-mono text-[#9a9a94] mb-2">ACTIVITY</p>
+          <div className="mb-4 p-3 bg-[#2e2e2a] rounded border border-[#4d4d47]">
+            <p className="text-xs font-mono text-[#b8b8b0] mb-2">ACTIVITY</p>
             <ActivityFeed contentId={item.id} />
           </div>
         )}
@@ -319,7 +428,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
             <button
               type="button"
               onClick={() => copyText(form.script, () => setScriptCopied(true))}
-              className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#9a9a94] transition-colors"
+              className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#b8b8b0] transition-colors"
             >
               Copy Script
             </button>
@@ -353,18 +462,18 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
                   }}
                   className={`${inputCls} w-20`}
                 />
-                <span className="text-[11px] text-[#9a9a94]">slide</span>
+                <span className="text-[11px] text-[#b8b8b0]">slide</span>
               </div>
             </Field>
 
-            <div className="border border-[#3a3a36] rounded-sm p-3 bg-[#232323]/50">
-              <p className="font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] mb-3">
+            <div className="border border-[#4d4d47] rounded-sm p-3 bg-[#2e2e2a]/50">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] mb-3">
                 Script Per Slide - Enak copy paste untuk graphic design
               </p>
               <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(250px, 1fr))` }}>
                 {Array.from({ length: carouselSlideCount }).map((_, idx) => (
-                  <div key={idx} className="border border-[#3a3a36] rounded-sm overflow-hidden flex flex-col">
-                    <div className="bg-[#1c1c1c] px-2.5 py-1.5 border-b border-[#3a3a36]">
+                  <div key={idx} className="border border-[#4d4d47] rounded-sm overflow-hidden flex flex-col">
+                    <div className="bg-[#262622] px-2.5 py-1.5 border-b border-[#4d4d47]">
                       <span className="font-mono text-[11px] text-[#c1ff1a]">SLIDE {idx + 1}</span>
                     </div>
                     <textarea
@@ -384,7 +493,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
                         const text = form.scripts?.[idx] || ''
                         copyText(text, () => setScriptCopied(idx))
                       }}
-                      className="bg-[#1c1c1c] border-t border-[#3a3a36] px-2.5 py-1.5 font-mono text-[10px] text-[#f2efe9] hover:bg-[#232323] transition-colors"
+                      className="bg-[#262622] border-t border-[#4d4d47] px-2.5 py-1.5 font-mono text-[10px] text-[#f2efe9] hover:bg-[#2e2e2a] transition-colors"
                     >
                       {scriptCopied === idx ? 'COPIED ✓' : 'COPY'}
                     </button>
@@ -406,7 +515,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           <button
             type="button"
             onClick={openAllAssets}
-            className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#9a9a94] transition-colors"
+            className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#b8b8b0] transition-colors"
           >
             Buka Semua Link
           </button>
@@ -415,7 +524,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         {/* Drive Link - readonly, set saat move ke Terjadwal */}
         {form.driveLink && (
           <Field label="Link Google Drive (Konten/Design)">
-            <div className="bg-[#232323] border border-[#3a3a36] rounded-sm p-2.5 text-[13px] break-all">
+            <div className="bg-[#2e2e2a] border border-[#4d4d47] rounded-sm p-2.5 text-[13px] break-all">
               <a 
                 href={form.driveLink} 
                 target="_blank" 
@@ -425,14 +534,14 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
                 {form.driveLink}
               </a>
             </div>
-            <p className="text-[11px] text-[#9a9a94] mt-1.5">
+            <p className="text-[11px] text-[#b8b8b0] mt-1.5">
               Link ini di-set saat Anda move konten ke status &quot;Terjadwal&quot;
             </p>
           </Field>
         )}
 
         <details open className="mb-3">
-          <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] py-1.5">
+          <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] py-1.5">
             Konten Siap Posting (caption, link, dll)
           </summary>
           <div className="mt-2">
@@ -453,7 +562,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
               <button
                 type="button"
                 onClick={() => copyText(form.caption, () => setCaptionCopied(true))}
-                className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#9a9a94] transition-colors"
+                className="mt-1.5 font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#f2efe9] px-3 py-2 rounded-sm hover:border-[#b8b8b0] transition-colors"
               >
                 Copy Caption
               </button>
@@ -466,7 +575,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         </Field>
 
         <details className="mb-3">
-          <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#9a9a94] py-1.5">
+          <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] py-1.5">
             Data Engagement (isi kalau status Publish)
           </summary>
           <div className="mt-2">
@@ -522,7 +631,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="font-mono text-xs uppercase tracking-wider border border-[#3a3a36] text-[#9a9a94] px-3 py-2 rounded-sm hover:border-[#9a9a94] transition-colors"
+              className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#b8b8b0] transition-colors"
             >
               Batal
             </button>
@@ -537,7 +646,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         </div>
 
         {toast && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#232323] border border-[#c1ff1a] text-[#f2efe9] px-4 py-2 rounded-sm text-[13px] whitespace-nowrap">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#2e2e2a] border border-[#c1ff1a] text-[#f2efe9] px-4 py-2 rounded-sm text-[13px] whitespace-nowrap">
             {toast}
           </div>
         )}

@@ -28,7 +28,11 @@ create table if not exists content_items (
   comments integer default 0,
   shares integer default 0,
   saves integer default 0,
-  created_at bigint not null
+  created_at bigint not null,
+  approval_status text,
+  approved_by text,
+  approved_at bigint,
+  rejection_reason text
 );
 
 create table if not exists accounts (
@@ -113,3 +117,12 @@ create policy "public full access" on activity for all using (true) with check (
 create policy "public full access" on reports for all using (true) with check (true);
 
 -- Realtime: Supabase Dashboard -> Database -> Publications -> supabase_realtime -> centang semua 8 tabel di atas.
+
+-- ============================================================
+-- MIGRASI (kalau database Supabase lu udah pernah dipakai sebelumnya,
+-- cukup jalanin blok di bawah ini aja, gak perlu run ulang dari atas):
+-- ============================================================
+alter table content_items add column if not exists approval_status text;
+alter table content_items add column if not exists approved_by text;
+alter table content_items add column if not exists approved_at bigint;
+alter table content_items add column if not exists rejection_reason text;
