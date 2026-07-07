@@ -1,12 +1,31 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, Legend,
+} from 'recharts'
 import { useContentStore } from '@/lib/store'
 import { ALL_PLATFORMS } from '@/lib/constants'
-import type { ContentItem } from '@/lib/types'
+
+const BRAND_COLORS = ['#0036ff', '#c1ff1a', '#ff00ae', '#ff8c1a', '#00c2ff', '#a855f7']
+
+// Skor konten disesuaikan objective-nya, biar gak nyampur metrik awareness/engagement/conversion
+function scoreContent(item: { objective?: string; reach?: number; views: number; likes: number; comments: number; shares: number; saves: number; leads?: number; clicks?: number }) {
+  const objective = item.objective || 'Engagement'
+  if (objective === 'Awareness') return item.reach || item.views || 0
+  if (objective === 'Conversion') return (item.leads || 0) * 5 + (item.clicks || 0)
+  return item.likes + item.comments + item.shares + item.saves
+}
+
+function scoreLabel(objective?: string) {
+  if (objective === 'Awareness') return 'Reach/Views'
+  if (objective === 'Conversion') return 'Leads/Clicks'
+  return 'Engagement'
+}
 
 export function EngagementDashboard() {
-  const { items } = useContentStore()
+  const { items, accounts } = useContentStore()
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([...ALL_PLATFORMS])
   const [dateRange, setDateRange] = useState<[string, string]>([
     new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
@@ -96,6 +115,42 @@ export function EngagementDashboard() {
       .filter(([_, m]) => m.count > 0)
       .sort((a, b) => b[1].engagement - a[1].engagement)
   }, [platformMetrics])
+
+  // Data buat bar chart distribusi platform
+  const platformChartData = useMemo(() => {
+    return sortedPlatforms.map(([platform, m]) => ({
+      platform,
+      Engagement: m.engagement,
+      Views: m.views,
+    }))
+  }, [sortedPlatforms])
+
+  // Data buat line chart audience growth — gabung history semua platform jadi 1 timeline
+  const growthChartData = useMemo(() => {
+    const dateMap: Record<string, Record<string, number | string>> = {}
+    const activePlatforms = new Set<string>()
+
+    Object.entries(accounts).forEach(([platform, data]) => {
+      if (!data.history || data.history.length === 0) return
+      activePlatforms.add(platform)
+      data.history.forEach((entry) => {
+        if (entry.date < dateRange[0] || entry.date > dateRange[1]) return
+        if (!dateMap[entry.date]) dateMap[entry.date] = { date: entry.date }
+        dateMap[entry.date][platform] = entry.followers
+      })
+    })
+
+    const sortedDates = Object.keys(dateMap).sort()
+    return { rows: sortedDates.map((d) => dateMap[d]), platforms: Array.from(activePlatforms) }
+  }, [accounts, dateRange])
+
+  // Top 5 konten berdasarkan skor yang relevan sama objective masing-masing
+  const topContent = useMemo(() => {
+    return [...filteredItems]
+      .map((item) => ({ item, score: scoreContent(item) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+  }, [filteredItems])
 
   const togglePlatform = (platform: string) => {
     setSelectedPlatforms((prev) =>
@@ -205,7 +260,101 @@ export function EngagementDashboard() {
         </div>
       </div>
 
-      {/* Platform Breakdown */}
+      {/* Chart: Distribusi Platform */}
+      <div className="space-y-3">
+        <h3 className="font-mono text-sm font-bold text-foreground">DISTRIBUSI PLATFORM</h3>
+        {platformChartData.length === 0 ? (
+          <div className="bg-muted border border-border rounded-lg p-8 text-center text-muted-foreground text-sm">
+            Belum ada data buat ditampilin di chart.
+          </div>
+        ) : (
+          <div className="bg-muted border border-border rounded-lg p-4" style={{ height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={platformChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#4d4d47" />
+                <XAxis dataKey="platform" tick={{ fontSize: 11, fill: '#b8b8b0' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#b8b8b0' }} />
+                <Tooltip
+                  contentStyle={{ background: '#262622', border: '1px solid #4d4d47', fontSize: 12 }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="Engagement" fill="#c1ff1a" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Views" fill="#0036ff" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Chart: Audience Growth */}
+      <div className="space-y-3">
+        <h3 className="font-mono text-sm font-bold text-foreground">AUDIENCE GROWTH</h3>
+        {growthChartData.rows.length === 0 ? (
+          <div className="bg-muted border border-border rounded-lg p-8 text-center text-muted-foreground text-sm">
+            Belum ada histori followers. Update data akun di menu <span className="text-[#0036ff]">Akun</span> buat mulai nge-track growth.
+          </div>
+        ) : (
+          <div className="bg-muted border border-border rounded-lg p-4" style={{ height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={growthChartData.rows}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#4d4d47" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#b8b8b0' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#b8b8b0' }} />
+                <Tooltip
+                  contentStyle={{ background: '#262622', border: '1px solid #4d4d47', fontSize: 12 }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                {growthChartData.platforms.map((platform, i) => (
+                  <Line
+                    key={platform}
+                    type="monotone"
+                    dataKey={platform}
+                    stroke={BRAND_COLORS[i % BRAND_COLORS.length]}
+                    strokeWidth={2}
+                    dot={{ r: 2 }}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Top 5 Konten */}
+      <div className="space-y-3">
+        <h3 className="font-mono text-sm font-bold text-foreground">TOP 5 KONTEN</h3>
+        {topContent.length === 0 ? (
+          <div className="bg-muted border border-border rounded-lg p-8 text-center text-muted-foreground text-sm">
+            Belum ada konten published di rentang tanggal ini.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {topContent.map(({ item, score }, idx) => (
+              <div
+                key={item.id}
+                className="bg-muted border border-border rounded-lg p-3 flex items-center gap-3"
+              >
+                <div className="font-mono text-lg font-bold text-[#0036ff] w-6 text-center">
+                  {idx + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm truncate">{item.title || '(Tanpa judul)'}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {item.platform} · {item.objective || 'Engagement'}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-[#c1ff1a]">{score.toLocaleString()}</div>
+                  <div className="text-[10px] text-muted-foreground">{scoreLabel(item.objective)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Platform Breakdown (detail) */}
       <div className="space-y-3">
         <h3 className="font-mono text-sm font-bold text-foreground">PLATFORM PERFORMANCE</h3>
         {sortedPlatforms.length === 0 ? (
