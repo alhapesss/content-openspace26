@@ -14,12 +14,8 @@ import {
   SUBFORMATS,
   PILLARS,
   PLATFORM_FORMATS,
-  PLATFORM_METRICS,
-  METRIC_LABELS,
   ALL_PLATFORMS,
   OBJECTIVES,
-  OBJECTIVE_METRICS,
-  OBJECTIVE_METRIC_LABELS,
 } from '@/lib/constants'
 import { uid, todayStr, blankItem } from '@/lib/content-utils'
 import type { ContentItem } from '@/lib/types'
@@ -224,9 +220,6 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
   ]
 
   const allowedFormats = PLATFORM_FORMATS[form.platform] || [...FORMATS]
-  const allowedMetrics = PLATFORM_METRICS[form.platform] || PLATFORM_METRICS['Multi-Platform']
-  const metricLabels = METRIC_LABELS[form.platform] || {}
-  const objectiveMetricKeys = OBJECTIVE_METRICS[form.objective || 'Engagement'] || []
   const showShootDate = form.format === 'Reels / TikTok'
 
   if (!open) return null
@@ -349,6 +342,17 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           <Field label="Status">
             <select className={selectCls} value={form.status} onChange={(e) => set('status', e.target.value)}>
               {STATUSES.map((s) => <option key={s}>{s}</option>)}
+            </select>
+          </Field>
+          <Field label="Objective Konten">
+            <select
+              className={selectCls}
+              value={form.objective || 'Engagement'}
+              onChange={(e) => set('objective', e.target.value as 'Awareness' | 'Engagement' | 'Conversion')}
+            >
+              {OBJECTIVES.map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
             </select>
           </Field>
         </div>
@@ -592,77 +596,6 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         <Field label="Catatan">
           <textarea className={textareaCls} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
         </Field>
-
-        <Field label="Objective Konten">
-          <select
-            className={inputCls}
-            value={form.objective || 'Engagement'}
-            onChange={(e) => set('objective', e.target.value as 'Awareness' | 'Engagement' | 'Conversion')}
-          >
-            {OBJECTIVES.map((o) => (
-              <option key={o} value={o}>{o}</option>
-            ))}
-          </select>
-        </Field>
-
-        <details className="mb-3">
-          <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] py-1.5">
-            Data Engagement (isi kalau status Publish)
-          </summary>
-          <div className="mt-2">
-            <div className="flex gap-2 mb-2">
-              {allowedMetrics.includes('views') && (
-                <Field label={metricLabels.views || 'Views/Reach'}>
-                  <input className={inputCls} type="number" min="0" value={form.views} onChange={(e) => set('views', Number(e.target.value))} />
-                </Field>
-              )}
-              {allowedMetrics.includes('likes') && (
-                <Field label="Likes">
-                  <input className={inputCls} type="number" min="0" value={form.likes} onChange={(e) => set('likes', Number(e.target.value))} />
-                </Field>
-              )}
-            </div>
-            <div className="flex gap-2 mb-2">
-              {allowedMetrics.includes('comments') && (
-                <Field label="Comments">
-                  <input className={inputCls} type="number" min="0" value={form.comments} onChange={(e) => set('comments', Number(e.target.value))} />
-                </Field>
-              )}
-              {allowedMetrics.includes('shares') && (
-                <Field label={metricLabels.shares || 'Shares'}>
-                  <input className={inputCls} type="number" min="0" value={form.shares} onChange={(e) => set('shares', Number(e.target.value))} />
-                </Field>
-              )}
-            </div>
-            {allowedMetrics.includes('saves') && (
-              <Field label="Saves">
-                <input className={inputCls} type="number" min="0" value={form.saves} onChange={(e) => set('saves', Number(e.target.value))} />
-              </Field>
-            )}
-
-            {/* Metrics tambahan sesuai Objective — jangan campur metrik antar-objective */}
-            {objectiveMetricKeys.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-[#4d4d47]">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-[#0036ff] mb-2">
-                  Metrics {form.objective}
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {objectiveMetricKeys.map((key) => (
-                    <Field key={key} label={OBJECTIVE_METRIC_LABELS[key] || key}>
-                      <input
-                        className={inputCls}
-                        type="number"
-                        min="0"
-                        value={(form as unknown as Record<string, number>)[key] ?? 0}
-                        onChange={(e) => set(key as keyof typeof form, Number(e.target.value))}
-                      />
-                    </Field>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </details>
 
         <div className="flex items-center justify-between mt-4 gap-2">
           {item && item.id ? (

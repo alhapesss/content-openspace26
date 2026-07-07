@@ -29,7 +29,7 @@ export function EngagementDashboard() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([...ALL_PLATFORMS])
   const [dateRange, setDateRange] = useState<[string, string]>([
     new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
-    new Date().toISOString().split('T')[0],
+    new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0],
   ])
 
   const filteredItems = useMemo(() => {
