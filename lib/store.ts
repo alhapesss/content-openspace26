@@ -51,6 +51,7 @@ interface ContentStore {
   setReminders: (reminders: Reminder[]) => Promise<void>
   addComment: (comment: Comment) => Promise<void>
   deleteComment: (id: string) => Promise<void>
+  toggleCommentReaction: (commentId: string, viewerName: string, emoji: string) => Promise<void>
   addActivity: (activity: Activity) => Promise<void>
   addReport: (report: Report) => Promise<void>
   updateReport: (id: string, data: Partial<Report>) => Promise<void>
@@ -300,6 +301,25 @@ export const useContentStore = create<ContentStore>()((set, get) => ({
     set((s) => ({ comments: s.comments.filter((c) => c.id !== id) }))
     const { error } = await supabase.from('comments').delete().eq('id', id)
     if (error) console.error('[supabase] deleteComment', error)
+  },
+
+  toggleCommentReaction: async (commentId, viewerName, emoji) => {
+    set((s) => ({
+      comments: s.comments.map((c) => {
+        if (c.id !== commentId) return c
+        const reactions = { ...(c.reactions ?? {}) }
+        if (reactions[viewerName] === emoji) {
+          delete reactions[viewerName] // klik emoji yg sama = batal reaksi
+        } else {
+          reactions[viewerName] = emoji
+        }
+        return { ...c, reactions }
+      }),
+    }))
+    const merged = get().comments.find((c) => c.id === commentId)
+    if (!merged) return
+    const { error } = await supabase.from('comments').update({ reactions: merged.reactions ?? {} }).eq('id', commentId)
+    if (error) console.error('[supabase] toggleCommentReaction', error)
   },
 
   addActivity: async (activity) => {

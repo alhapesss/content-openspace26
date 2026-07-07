@@ -154,6 +154,7 @@ export function commentToRow(c: Comment) {
     text: c.text,
     created_at: c.createdAt,
     thread_id: c.threadId ?? null,
+    reactions: c.reactions ?? {},
   }
 }
 
@@ -166,6 +167,7 @@ export function rowToComment(r: any): Comment {
     text: r.text,
     createdAt: r.created_at,
     threadId: r.thread_id ?? undefined,
+    reactions: r.reactions ?? undefined,
   }
 }
 

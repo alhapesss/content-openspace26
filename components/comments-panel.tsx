@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useContentStore } from '@/lib/store'
-import { createComment, formatActivityTime } from '@/lib/collaboration-utils'
+import { createComment, formatActivityTime, REACTION_EMOJIS } from '@/lib/collaboration-utils'
+import { createNotification } from '@/lib/notifications-utils'
+import { getViewerName } from '@/lib/viewer'
 import { Button } from './ui/button'
 
 interface CommentsPanelProps {
@@ -11,19 +13,62 @@ interface CommentsPanelProps {
   onClose: () => void
 }
 
+// Render teks komentar, nge-highlight @mention yang namanya cocok sama anggota tim
+function renderCommentText(text: string, teamNames: string[]) {
+  const parts = text.split(/(@[\w.]+)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('@')) {
+      const name = part.slice(1)
+      const isKnown = teamNames.some((n) => n.toLowerCase() === name.toLowerCase())
+      if (isKnown) {
+        return (
+          <span key={i} className="text-[#0036ff] font-semibold">
+            {part}
+          </span>
+        )
+      }
+    }
+    return <span key={i}>{part}</span>
+  })
+}
+
 export function CommentsPanel({ contentId, isOpen, onClose }: CommentsPanelProps) {
-  const { comments, team, addComment, deleteComment } = useContentStore()
+  const { comments, team, addComment, deleteComment, toggleCommentReaction, addNotification } = useContentStore()
   const [newComment, setNewComment] = useState('')
-  const [selectedMember, setSelectedMember] = useState(team[0]?.name || '')
+
+  const viewerName = getViewerName()
+  const teamNames = team.map((m) => m.name)
 
   const contentComments = comments.filter((c) => c.contentId === contentId)
   const sortedComments = [...contentComments].sort((a, b) => a.createdAt - b.createdAt)
 
   const handleAddComment = () => {
-    if (!newComment.trim() || !selectedMember) return
-    const comment = createComment(contentId, selectedMember, newComment)
+    if (!newComment.trim()) return
+    const comment = createComment(contentId, viewerName, newComment)
     addComment(comment)
+
+    // Notifikasi buat mention yang cocok sama nama tim (cek per-nama, hindari salah tangkap)
+    const mentioned = teamNames.filter((name) => {
+      const firstWord = name.split(' ')[0]
+      const re = new RegExp(`@${firstWord}\\b`, 'i')
+      return re.test(newComment)
+    })
+    mentioned.forEach((name) => {
+      addNotification(
+        createNotification(
+          'team_mention',
+          `${viewerName} menyebut @${name}`,
+          newComment.length > 80 ? `${newComment.slice(0, 80)}…` : newComment,
+          contentId
+        )
+      )
+    })
+
     setNewComment('')
+  }
+
+  const handleReact = (commentId: string, emoji: string) => {
+    toggleCommentReaction(commentId, viewerName, emoji)
   }
 
   if (!isOpen) return null
@@ -53,87 +98,96 @@ export function CommentsPanel({ contentId, isOpen, onClose }: CommentsPanelProps
               No comments yet. Start a discussion!
             </div>
           ) : (
-            sortedComments.map((comment) => (
-              <div
-                key={comment.id}
-                className="bg-muted/40 rounded-lg p-3 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm text-foreground">{comment.authorId}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatActivityTime(comment.createdAt)}
-                  </span>
-                </div>
-                <p className="text-sm text-foreground whitespace-pre-wrap break-words">
-                  {comment.text}
-                </p>
-                <button
-                  onClick={() => deleteComment(comment.id)}
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+            sortedComments.map((comment) => {
+              const reactions = comment.reactions ?? {}
+              const reactionCounts: Record<string, number> = {}
+              Object.values(reactions).forEach((emoji) => {
+                reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1
+              })
+              const myReaction = reactions[viewerName]
+
+              return (
+                <div
+                  key={comment.id}
+                  className="bg-muted/40 rounded-lg p-3 space-y-2"
                 >
-                  Delete
-                </button>
-              </div>
-            ))
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-foreground">{comment.authorId}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatActivityTime(comment.createdAt)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+                    {renderCommentText(comment.text, teamNames)}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-1">
+                      {REACTION_EMOJIS.map((emoji) => {
+                        const count = reactionCounts[emoji] || 0
+                        const active = myReaction === emoji
+                        return (
+                          <button
+                            key={emoji}
+                            onClick={() => handleReact(comment.id, emoji)}
+                            className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
+                              active
+                                ? 'bg-[#0036ff]/20 border border-[#0036ff]'
+                                : 'border border-transparent hover:border-border'
+                            }`}
+                            title={active ? 'Batal reaksi' : 'Kasih reaksi'}
+                          >
+                            {emoji}
+                            {count > 0 && <span className="ml-1 text-[10px]">{count}</span>}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <button
+                      onClick={() => deleteComment(comment.id)}
+                      className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )
+            })
           )}
         </div>
 
         {/* Comment Input */}
-        {team.length > 0 && (
-          <div className="border-t border-border bg-background px-6 py-4 space-y-3">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground block mb-2">
-                Posting as
-              </label>
-              <select
-                value={selectedMember}
-                onChange={(e) => setSelectedMember(e.target.value)}
-                className="w-full px-3 py-2 bg-muted border border-border rounded text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                {team.map((member) => (
-                  <option
-                    key={member.name}
-                    value={member.name}
-                  >
-                    {member.name} ({member.role})
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="border-t border-border bg-background px-6 py-4 space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Posting sebagai <span className="font-semibold text-foreground">{viewerName}</span>
+          </p>
 
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment... (use @name to mention)"
-              className="w-full px-3 py-2 bg-muted border border-border rounded text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent resize-none"
-              rows={3}
-            />
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment... (use @name to mention)"
+            className="w-full px-3 py-2 bg-muted border border-border rounded text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+            rows={3}
+          />
 
-            <div className="flex gap-2">
-              <Button
-                onClick={handleAddComment}
-                disabled={!newComment.trim()}
-                className="flex-1"
-                size="sm"
-              >
-                Comment
-              </Button>
-              <Button
-                onClick={onClose}
-                variant="outline"
-                size="sm"
-              >
-                Done
-              </Button>
-            </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleAddComment}
+              disabled={!newComment.trim()}
+              className="flex-1"
+              size="sm"
+            >
+              Comment
+            </Button>
+            <Button
+              onClick={onClose}
+              variant="outline"
+              size="sm"
+            >
+              Done
+            </Button>
           </div>
-        )}
-
-        {team.length === 0 && (
-          <div className="border-t border-border bg-background px-6 py-4 text-xs text-muted-foreground text-center">
-            Add team members to enable comments
-          </div>
-        )}
+        </div>
       </div>
     </>
   )

@@ -73,7 +73,8 @@ create table if not exists comments (
   author_id text not null,
   text text not null,
   created_at bigint not null,
-  thread_id text
+  thread_id text,
+  reactions jsonb default '{}'
 );
 
 create table if not exists activity (
@@ -126,3 +127,4 @@ alter table content_items add column if not exists approval_status text;
 alter table content_items add column if not exists approved_by text;
 alter table content_items add column if not exists approved_at bigint;
 alter table content_items add column if not exists rejection_reason text;
+alter table comments add column if not exists reactions jsonb default '{}';

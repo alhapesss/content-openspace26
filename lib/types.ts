@@ -76,6 +76,7 @@ export interface Comment {
   text: string
   createdAt: number
   threadId?: string
+  reactions?: Record<string, string> // viewerName -> emoji (1 reaksi per orang per komentar)
 }
 
 export interface Activity {
