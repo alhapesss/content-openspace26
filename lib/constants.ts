@@ -70,6 +70,8 @@ export const OBJECTIVE_METRIC_LABELS: Record<string, string> = {
   clicks: 'Click-throughs',
   leads: 'Leads Generated',
 }
+
+export const FORMAT_COLORS: Record<string, string> = {
   Carousel: '#ff00ae',
   'Single Post': '#0036ff',
   'Reels / TikTok': '#c1ff1a',
