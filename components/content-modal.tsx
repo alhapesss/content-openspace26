@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useContentStore } from '@/lib/store'
 import { CommentsPanel } from './comments-panel'
 import { ActivityFeed } from './activity-feed'
+import { DriveLinkModal } from './drive-link-modal'
 import { usePresence } from '@/hooks/use-presence'
 import { getViewerName } from '@/lib/viewer'
 import { createApprovalResultNotification } from '@/lib/notifications-utils'
@@ -16,6 +17,9 @@ import {
   PLATFORM_METRICS,
   METRIC_LABELS,
   ALL_PLATFORMS,
+  OBJECTIVES,
+  OBJECTIVE_METRICS,
+  OBJECTIVE_METRIC_LABELS,
 } from '@/lib/constants'
 import { uid, todayStr, blankItem } from '@/lib/content-utils'
 import type { ContentItem } from '@/lib/types'
@@ -121,11 +125,14 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
     onClose()
   }
 
-  const handleApprove = () => {
+  const [showApproveDriveModal, setShowApproveDriveModal] = useState(false)
+
+  const finalizeApprove = (driveLink: string) => {
     if (!item) return
     const now = Date.now()
     updateItem(item.id, {
       status: 'Terjadwal',
+      driveLink,
       approvalStatus: 'approved',
       approvedBy: viewerName,
       approvedAt: now,
@@ -141,6 +148,17 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
     addNotification(createApprovalResultNotification({ ...item, title: item.title }, true, viewerName))
     showToast('Disetujui, lanjut ke Terjadwal.')
     onClose()
+  }
+
+  const handleApprove = () => {
+    if (!item) return
+    // Konsisten sama drag-kanban ke "Terjadwal": link Google Drive wajib diisi dulu,
+    // gak boleh ke-bypass lewat tombol approve.
+    if (!item.driveLink) {
+      setShowApproveDriveModal(true)
+      return
+    }
+    finalizeApprove(item.driveLink)
   }
 
   const handleReject = () => {
@@ -208,6 +226,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
   const allowedFormats = PLATFORM_FORMATS[form.platform] || [...FORMATS]
   const allowedMetrics = PLATFORM_METRICS[form.platform] || PLATFORM_METRICS['Multi-Platform']
   const metricLabels = METRIC_LABELS[form.platform] || {}
+  const objectiveMetricKeys = OBJECTIVE_METRICS[form.objective || 'Engagement'] || []
   const showShootDate = form.format === 'Reels / TikTok'
 
   if (!open) return null
@@ -574,6 +593,18 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           <textarea className={textareaCls} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
         </Field>
 
+        <Field label="Objective Konten">
+          <select
+            className={inputCls}
+            value={form.objective || 'Engagement'}
+            onChange={(e) => set('objective', e.target.value as ContentItem['objective'])}
+          >
+            {OBJECTIVES.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+        </Field>
+
         <details className="mb-3">
           <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-wider text-[#b8b8b0] py-1.5">
             Data Engagement (isi kalau status Publish)
@@ -607,6 +638,28 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
               <Field label="Saves">
                 <input className={inputCls} type="number" min="0" value={form.saves} onChange={(e) => set('saves', Number(e.target.value))} />
               </Field>
+            )}
+
+            {/* Metrics tambahan sesuai Objective — jangan campur metrik antar-objective */}
+            {objectiveMetricKeys.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-[#4d4d47]">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[#0036ff] mb-2">
+                  Metrics {form.objective}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {objectiveMetricKeys.map((key) => (
+                    <Field key={key} label={OBJECTIVE_METRIC_LABELS[key] || key}>
+                      <input
+                        className={inputCls}
+                        type="number"
+                        min="0"
+                        value={(form as unknown as Record<string, number>)[key] ?? 0}
+                        onChange={(e) => set(key as keyof typeof form, Number(e.target.value))}
+                      />
+                    </Field>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </details>
@@ -660,6 +713,16 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         onClose={() => setCommentsOpen(false)}
       />
     )}
+
+    <DriveLinkModal
+      open={showApproveDriveModal}
+      contentTitle={item?.title || ''}
+      onClose={() => setShowApproveDriveModal(false)}
+      onSave={(driveLink) => {
+        setShowApproveDriveModal(false)
+        finalizeApprove(driveLink)
+      }}
+    />
   </>
 )
 }

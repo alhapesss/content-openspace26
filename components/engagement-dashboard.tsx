@@ -66,17 +66,25 @@ export function EngagementDashboard() {
     const totals = {
       published: filteredItems.length,
       views: 0,
+      reach: 0,
       engagement: 0,
       avgEngagementRate: 0,
+      usedReachForERR: false,
     }
 
     filteredItems.forEach((item) => {
       totals.views += item.views || 0
+      totals.reach += item.reach || 0
       const eng = (item.likes || 0) + (item.comments || 0) + (item.shares || 0) + (item.saves || 0)
       totals.engagement += eng
     })
 
-    if (totals.views > 0) {
+    // Sesuai Social Media Metrics Guideline: ERR (Engagement Rate by Reach) yang paling
+    // direkomendasikan = engagement / reach. Kalau reach belum diisi, fallback ke /views.
+    if (totals.reach > 0) {
+      totals.avgEngagementRate = (totals.engagement / totals.reach) * 100
+      totals.usedReachForERR = true
+    } else if (totals.views > 0) {
       totals.avgEngagementRate = (totals.engagement / totals.views) * 100
     }
 
@@ -183,10 +191,17 @@ export function EngagementDashboard() {
           </div>
         </div>
         <div className="bg-muted border border-border rounded-lg p-4">
-          <div className="text-xs font-mono text-muted-foreground mb-2">AVG ENGAGEMENT RATE</div>
+          <div className="text-xs font-mono text-muted-foreground mb-2">
+            AVG ENGAGEMENT RATE {totalMetrics.usedReachForERR ? '(by Reach)' : '(by Views)'}
+          </div>
           <div className="text-2xl font-bold text-accent">
             {totalMetrics.avgEngagementRate.toFixed(2)}%
           </div>
+          {!totalMetrics.usedReachForERR && (
+            <div className="text-[10px] text-muted-foreground mt-1">
+              Isi metrics Reach di tab Metrics buat pakai rumus ERR yang direkomendasikan.
+            </div>
+          )}
         </div>
       </div>
 

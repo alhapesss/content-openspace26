@@ -52,7 +52,24 @@ export const METRIC_LABELS: Record<string, { views?: string; shares?: string }> 
   Threads: { shares: 'Reposts' },
 }
 
-export const FORMAT_COLORS: Record<string, string> = {
+export const OBJECTIVES = ['Awareness', 'Engagement', 'Conversion'] as const
+export type Objective = typeof OBJECTIVES[number]
+
+// Metrics tambahan (di luar views/likes/comments/shares/saves) yang relevan per objective,
+// sesuai Social Media Metrics Guideline — biar gak campur metrik antar-objective.
+export const OBJECTIVE_METRICS: Record<Objective, string[]> = {
+  Awareness: ['reach', 'impressions', 'brandMentions'],
+  Engagement: [],
+  Conversion: ['clicks', 'leads'],
+}
+
+export const OBJECTIVE_METRIC_LABELS: Record<string, string> = {
+  reach: 'Reach (jangkauan)',
+  impressions: 'Impressions (tayangan)',
+  brandMentions: 'Brand Mentions',
+  clicks: 'Click-throughs',
+  leads: 'Leads Generated',
+}
   Carousel: '#ff00ae',
   'Single Post': '#0036ff',
   'Reels / TikTok': '#c1ff1a',

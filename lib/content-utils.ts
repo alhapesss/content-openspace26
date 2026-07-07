@@ -82,6 +82,12 @@ export function blankItem(): Omit<ContentItem, 'id' | 'createdAt'> {
     comments: 0,
     shares: 0,
     saves: 0,
+    objective: 'Engagement',
+    reach: 0,
+    impressions: 0,
+    brandMentions: 0,
+    clicks: 0,
+    leads: 0,
   }
 }
 

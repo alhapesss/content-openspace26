@@ -34,6 +34,14 @@ export interface ContentItem {
   shares: number
   saves: number
   createdAt: number
+  // Objective & metrics tambahan (sesuai Social Media Metrics Guideline)
+  objective?: 'Awareness' | 'Engagement' | 'Conversion'
+  reach?: number
+  impressions?: number
+  brandMentions?: number
+  clicks?: number
+  leads?: number
+  metricsUpdatedAt?: number
   // Approval workflow
   approvalStatus?: 'pending' | 'approved' | 'rejected'
   approvedBy?: string

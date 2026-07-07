@@ -9,6 +9,7 @@ import { CalendarView } from '@/components/calendar-view'
 import { AdvancedReportView } from '@/components/advanced-report-view'
 import { WorkloadMonitor } from '@/components/workload-monitor'
 import { EngagementDashboard } from '@/components/engagement-dashboard'
+import { MetricsTable } from '@/components/metrics-table'
 import { StatsBar } from '@/components/stats-bar'
 import { TeamModal, AccountsModal, ExportModal, ResetConfirmModal } from '@/components/toolbar-modals'
 import { ContentModal } from '@/components/content-modal'
@@ -17,7 +18,7 @@ import { FilterPanel } from '@/components/filter-panel'
 import { Button } from '@/components/ui/button'
 import { filterContent } from '@/lib/search-utils'
 
-type ViewMode = 'board' | 'calendar' | 'report' | 'workload' | 'engagement'
+type ViewMode = 'board' | 'calendar' | 'report' | 'workload' | 'engagement' | 'metrics'
 
 export default function Page() {
   const { items, currentFilter, setCurrentFilter } = useContentStore()
@@ -170,6 +171,13 @@ export default function Page() {
         >
           Engagement
         </Button>
+        <Button
+          onClick={() => setViewMode('metrics')}
+          variant={viewMode === 'metrics' ? 'default' : 'outline'}
+          size="sm"
+        >
+          Metrics
+        </Button>
       </div>
 
       {/* Main Content */}
@@ -211,6 +219,12 @@ export default function Page() {
             <div className="max-w-6xl">
               <EngagementDashboard />
             </div>
+          </div>
+        )}
+
+        {viewMode === 'metrics' && (
+          <div className="flex-1 overflow-auto p-6">
+            <MetricsTable onOpenItem={setSelectedItemId} />
           </div>
         )}
       </main>

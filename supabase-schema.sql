@@ -32,7 +32,14 @@ create table if not exists content_items (
   approval_status text,
   approved_by text,
   approved_at bigint,
-  rejection_reason text
+  rejection_reason text,
+  objective text,
+  reach integer default 0,
+  impressions integer default 0,
+  brand_mentions integer default 0,
+  clicks integer default 0,
+  leads integer default 0,
+  metrics_updated_at bigint
 );
 
 create table if not exists accounts (
@@ -128,3 +135,10 @@ alter table content_items add column if not exists approved_by text;
 alter table content_items add column if not exists approved_at bigint;
 alter table content_items add column if not exists rejection_reason text;
 alter table comments add column if not exists reactions jsonb default '{}';
+alter table content_items add column if not exists objective text;
+alter table content_items add column if not exists reach integer default 0;
+alter table content_items add column if not exists impressions integer default 0;
+alter table content_items add column if not exists brand_mentions integer default 0;
+alter table content_items add column if not exists clicks integer default 0;
+alter table content_items add column if not exists leads integer default 0;
+alter table content_items add column if not exists metrics_updated_at bigint;

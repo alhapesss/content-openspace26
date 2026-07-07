@@ -37,6 +37,13 @@ export function contentToRow(c: ContentItem) {
     approved_by: c.approvedBy ?? null,
     approved_at: c.approvedAt ?? null,
     rejection_reason: c.rejectionReason ?? null,
+    objective: c.objective ?? null,
+    reach: c.reach ?? 0,
+    impressions: c.impressions ?? 0,
+    brand_mentions: c.brandMentions ?? 0,
+    clicks: c.clicks ?? 0,
+    leads: c.leads ?? 0,
+    metrics_updated_at: c.metricsUpdatedAt ?? null,
   }
 }
 
@@ -75,6 +82,13 @@ export function rowToContent(r: any): ContentItem {
     approvedBy: r.approved_by ?? undefined,
     approvedAt: r.approved_at ?? undefined,
     rejectionReason: r.rejection_reason ?? undefined,
+    objective: r.objective ?? undefined,
+    reach: r.reach ?? 0,
+    impressions: r.impressions ?? 0,
+    brandMentions: r.brand_mentions ?? 0,
+    clicks: r.clicks ?? 0,
+    leads: r.leads ?? 0,
+    metricsUpdatedAt: r.metrics_updated_at ?? undefined,
   }
 }
 
