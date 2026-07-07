@@ -597,7 +597,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           <select
             className={inputCls}
             value={form.objective || 'Engagement'}
-            onChange={(e) => set('objective', e.target.value as ContentItem['objective'])}
+            onChange={(e) => set('objective', e.target.value as 'Awareness' | 'Engagement' | 'Conversion')}
           >
             {OBJECTIVES.map((o) => (
               <option key={o} value={o}>{o}</option>
