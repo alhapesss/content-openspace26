@@ -266,7 +266,7 @@ export function AdvancedReportView() {
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-muted/40 rounded-lg p-4">
               <p className="text-xs text-muted-foreground mb-1">Total Published</p>
-              <p className="text-2xl font-bold text-accent">{metrics.totalPublished}</p>
+              <p className="text-2xl font-bold text-foreground">{metrics.totalPublished}</p>
             </div>
             <div className="bg-muted/40 rounded-lg p-4">
               <p className="text-xs text-muted-foreground mb-1">Total Views</p>

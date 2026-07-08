@@ -380,7 +380,7 @@ export function EngagementDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-accent">
+                      <div className="text-lg font-bold text-foreground">
                         {metrics.engagement.toLocaleString()}
                       </div>
                       <div className="text-xs text-muted-foreground">engagement</div>

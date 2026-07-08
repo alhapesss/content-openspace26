@@ -69,7 +69,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-muted border border-border rounded-lg p-4">
           <p className="text-xs font-mono text-muted-foreground mb-1">TOTAL PUBLISHED</p>
-          <p className="text-3xl font-bold text-accent">{totalPublished}</p>
+          <p className="text-3xl font-bold text-foreground">{totalPublished}</p>
         </div>
         <div className="bg-muted border border-border rounded-lg p-4">
           <p className="text-xs font-mono text-muted-foreground mb-1">TOTAL VIEWS</p>
@@ -149,7 +149,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
                     </span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-accent">
+                    <p className="text-sm font-bold text-foreground">
                       {data.engagement.toLocaleString()}
                     </p>
                     <p className="text-xs text-muted-foreground">
