@@ -13,6 +13,7 @@ import { MetricsTable } from '@/components/metrics-table'
 import { StatsBar } from '@/components/stats-bar'
 import { TeamModal, AccountsModal, ExportModal, ResetConfirmModal } from '@/components/toolbar-modals'
 import { ContentModal } from '@/components/content-modal'
+import { ImportModal } from '@/components/import-modal'
 import { NotificationCenter } from '@/components/notification-center'
 import { FilterPanel } from '@/components/filter-panel'
 import { Button } from '@/components/ui/button'
@@ -31,6 +32,7 @@ export default function Page() {
   const [exportOpen, setExportOpen] = useState(false)
   const [exportFormat, setExportFormat] = useState<'csv' | 'xlsx' | null>('csv')
   const [resetOpen, setResetOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
 
   useEffect(() => {
@@ -50,6 +52,19 @@ export default function Page() {
       query: searchInput,
     })
   }, [searchInput])
+
+  // Buka modal konten otomatis kalau app diakses dari link WA (?content=id)
+  useEffect(() => {
+    if (!hydrated) return
+    const params = new URLSearchParams(window.location.search)
+    const contentId = params.get('content')
+    if (contentId && items.some((i) => i.id === contentId)) {
+      setSelectedItemId(contentId)
+      params.delete('content')
+      const rest = params.toString()
+      window.history.replaceState({}, '', rest ? `?${rest}` : window.location.pathname)
+    }
+  }, [hydrated, items])
 
   const filteredItems = filterContent(items, currentFilter)
 
@@ -81,6 +96,12 @@ export default function Page() {
             >
               + New Content
             </Button>
+            <button
+              onClick={() => setImportOpen(true)}
+              className="font-mono text-xs uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-2 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors"
+            >
+              + Import
+            </button>
             <NotificationCenter />
           </div>
         </div>
@@ -244,6 +265,11 @@ export default function Page() {
         open={exportOpen}
         format={exportFormat}
         onClose={() => setExportOpen(false)}
+        onToast={setToastMsg}
+      />
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
         onToast={setToastMsg}
       />
       {toastMsg && (
