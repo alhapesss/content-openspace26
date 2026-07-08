@@ -30,9 +30,12 @@ export function NotificationCenter() {
     if (!item) return []
     const names = getInvolvedNames(item)
     const members = getInvolvedTeamMembers(names, team)
-    const message = buildNotificationMessage(notification, item)
+    const siteUrl = typeof window !== 'undefined' ? window.location.origin : undefined
     return members
-      .map((m) => ({ name: m.name, link: buildWhatsAppLink(m.phone!, message) }))
+      .map((m) => ({
+        name: m.name,
+        link: buildWhatsAppLink(m.phone!, buildNotificationMessage(notification, item, m.name, siteUrl)),
+      }))
       .filter((c): c is { name: string; link: string } => !!c.link)
   }
 
