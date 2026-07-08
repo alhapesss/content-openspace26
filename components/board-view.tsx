@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { useContentStore } from '@/lib/store'
 import { STATUSES, FORMAT_COLORS } from '@/lib/constants'
-import { matchesSearch, assetList, crewLine } from '@/lib/content-utils'
+import { matchesSearch, assetList, crewLine, todayStr } from '@/lib/content-utils'
 import { DriveLinkModal } from './drive-link-modal'
 import type { ContentItem } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -22,6 +22,18 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkStatus, setBulkStatus] = useState('')
   const [bulkPic, setBulkPic] = useState('')
+  const [showArchived, setShowArchived] = useState(false)
+
+  // Auto-archive: konten Publish yang tanggalnya udah lewat 60 hari dianggap arsip
+  const ARCHIVE_AFTER_DAYS = 60
+  const isAutoArchived = (item: ContentItem) => {
+    if (item.status !== 'Publish' || !item.date) return false
+    const days = (Date.now() - new Date(item.date).getTime()) / (1000 * 60 * 60 * 24)
+    return days > ARCHIVE_AFTER_DAYS
+  }
+  const isArchived = (item: ContentItem) => !!item.archived || isAutoArchived(item)
+  const archivedCount = items.filter(isArchived).length
+  const visibleItems = showArchived ? items : items.filter((i) => !isArchived(i))
 
   const handleDragStart = (id: string) => { dragId.current = id }
 
@@ -80,6 +92,15 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
     if (!window.confirm(`Hapus ${selectedIds.size} konten terpilih? Gak bisa dibatalin.`)) return
     selectedIds.forEach((id) => deleteItem(id))
     exitSelectMode()
+  }
+
+  const applyBulkArchive = () => {
+    selectedIds.forEach((id) => updateItem(id, { archived: true, archivedAt: Date.now() }))
+    exitSelectMode()
+  }
+
+  const handleUnarchive = (id: string) => {
+    updateItem(id, { archived: false, archivedAt: undefined })
   }
 
   const handleDuplicate = (item: ContentItem) => {
@@ -157,6 +178,13 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
             Terapkan
           </button>
           <button
+            onClick={applyBulkArchive}
+            disabled={selectedIds.size === 0}
+            className="border border-[#4d4d47] px-2 py-1.5 rounded-sm text-[#b8b8b0] hover:text-[#f2efe9] hover:border-[#f2efe9] disabled:opacity-40"
+          >
+            Arsipkan
+          </button>
+          <button
             onClick={applyBulkDelete}
             disabled={selectedIds.size === 0}
             className="border border-[#ff00ae]/30 text-[#ff00ae] px-2 py-1.5 rounded-sm hover:border-[#ff00ae] disabled:opacity-40"
@@ -171,10 +199,16 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
           </button>
         </div>
       )}
+      <button
+        onClick={() => setShowArchived((v) => !v)}
+        className="font-mono text-[11px] uppercase tracking-wider border border-[#4d4d47] text-[#b8b8b0] px-3 py-1.5 rounded-sm hover:border-[#f2efe9] hover:text-[#f2efe9] transition-colors ml-auto"
+      >
+        {showArchived ? 'Sembunyikan arsip' : `Lihat arsip (${archivedCount})`}
+      </button>
     </div>
     <div className="flex gap-3 overflow-x-auto pb-2">
       {STATUSES.map((status) => {
-        const colItems = items.filter((i) => i.status === status)
+        const colItems = visibleItems.filter((i) => i.status === status)
         return (
           <div
             key={status}
@@ -201,6 +235,8 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
                   selectMode={selectMode}
                   selected={selectedIds.has(item.id)}
                   onDuplicate={() => handleDuplicate(item)}
+                  archived={showArchived && isArchived(item)}
+                  onUnarchive={() => handleUnarchive(item.id)}
                 />
               ))}
             </div>
@@ -231,6 +267,8 @@ function BoardCard({
   selectMode,
   selected,
   onDuplicate,
+  archived,
+  onUnarchive,
 }: {
   item: ContentItem
   onOpen: () => void
@@ -238,6 +276,8 @@ function BoardCard({
   selectMode: boolean
   selected: boolean
   onDuplicate: () => void
+  archived?: boolean
+  onUnarchive?: () => void
 }) {
   const borderColor = FORMAT_COLORS[item.format] || '#f2efe9'
   const crew = crewLine(item)
@@ -269,16 +309,30 @@ function BoardCard({
           {item.title || '(tanpa judul)'}
         </div>
         {!selectMode && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onDuplicate()
-            }}
-            title="Duplikat jadi konten baru"
-            className="shrink-0 font-mono text-[10px] text-[#b8b8b0] hover:text-[#f2efe9] border border-[#4d4d47] hover:border-[#f2efe9] rounded-sm px-1.5 py-0.5"
-          >
-            Duplikat
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {archived && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onUnarchive?.()
+                }}
+                title="Keluarin dari arsip"
+                className="font-mono text-[10px] text-[#c1ff1a] hover:brightness-125 border border-[#c1ff1a]/40 hover:border-[#c1ff1a] rounded-sm px-1.5 py-0.5"
+              >
+                Unarsip
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDuplicate()
+              }}
+              title="Duplikat jadi konten baru"
+              className="font-mono text-[10px] text-[#b8b8b0] hover:text-[#f2efe9] border border-[#4d4d47] hover:border-[#f2efe9] rounded-sm px-1.5 py-0.5"
+            >
+              Duplikat
+            </button>
+          </div>
         )}
       </div>
       <div className="font-mono text-[10px] uppercase text-[#b8b8b0] tracking-wide">

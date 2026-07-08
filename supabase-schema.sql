@@ -142,3 +142,6 @@ alter table content_items add column if not exists brand_mentions integer defaul
 alter table content_items add column if not exists clicks integer default 0;
 alter table content_items add column if not exists leads integer default 0;
 alter table content_items add column if not exists metrics_updated_at bigint;
+alter table content_items add column if not exists archived boolean default false;
+alter table content_items add column if not exists archived_at bigint;
+alter table content_items add column if not exists google_event_id text;

@@ -1,5 +1,6 @@
 import type { ContentItem } from './types'
 import { STATUSES } from './constants'
+import { engagementOf, engagementRateOf } from './content-utils'
 
 export interface MemberWorkload {
   name: string
@@ -95,6 +96,50 @@ export function calculateWorkload(items: ContentItem[]): WorkloadStats {
     avgWorkload,
     overloadedMembers,
   }
+}
+
+export interface PICPerformance {
+  name: string
+  published: number
+  totalViews: number
+  totalEngagement: number
+  avgEngagementRate: number
+  topContent: { title: string; engagement: number } | null
+}
+
+// Dashboard performa per-PIC: dinilai dari konten yang statusnya udah Publish,
+// dikelompokin berdasarkan PIC utama (field `pic`, bukan crew pendukung)
+export function calculatePICPerformance(items: ContentItem[]): PICPerformance[] {
+  const published = items.filter((i) => i.status === 'Publish' && i.pic && i.pic.trim() !== '')
+  const map = new Map<string, ContentItem[]>()
+
+  published.forEach((item) => {
+    if (!map.has(item.pic)) map.set(item.pic, [])
+    map.get(item.pic)!.push(item)
+  })
+
+  const result: PICPerformance[] = Array.from(map.entries()).map(([name, list]) => {
+    const totalViews = list.reduce((sum, i) => sum + (i.views || 0), 0)
+    const totalEngagement = list.reduce((sum, i) => sum + engagementOf(i), 0)
+    const avgEngagementRate =
+      list.reduce((sum, i) => sum + engagementRateOf(i), 0) / list.length
+
+    const top = list.reduce<ContentItem | null>((best, i) => {
+      if (!best || engagementOf(i) > engagementOf(best)) return i
+      return best
+    }, null)
+
+    return {
+      name,
+      published: list.length,
+      totalViews,
+      totalEngagement,
+      avgEngagementRate,
+      topContent: top ? { title: top.title || '(tanpa judul)', engagement: engagementOf(top) } : null,
+    }
+  })
+
+  return result.sort((a, b) => b.totalEngagement - a.totalEngagement)
 }
 
 // Identify high-priority items that need reassignment

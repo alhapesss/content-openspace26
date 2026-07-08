@@ -44,6 +44,9 @@ export function contentToRow(c: ContentItem) {
     clicks: c.clicks ?? 0,
     leads: c.leads ?? 0,
     metrics_updated_at: c.metricsUpdatedAt ?? null,
+    archived: c.archived ?? false,
+    archived_at: c.archivedAt ?? null,
+    google_event_id: c.googleEventId ?? null,
   }
 }
 
@@ -89,6 +92,9 @@ export function rowToContent(r: any): ContentItem {
     clicks: r.clicks ?? 0,
     leads: r.leads ?? 0,
     metricsUpdatedAt: r.metrics_updated_at ?? undefined,
+    archived: r.archived ?? false,
+    archivedAt: r.archived_at ?? undefined,
+    googleEventId: r.google_event_id ?? undefined,
   }
 }
 

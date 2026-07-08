@@ -47,6 +47,11 @@ export interface ContentItem {
   approvedBy?: string
   approvedAt?: number
   rejectionReason?: string
+  // Archive (auto/manual, konten Publish lama disembunyiin dari board)
+  archived?: boolean
+  archivedAt?: number
+  // Google Calendar sync (event id, biar update bukan bikin duplikat)
+  googleEventId?: string
 }
 
 export interface AccountData {

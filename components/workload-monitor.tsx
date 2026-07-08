@@ -2,13 +2,14 @@
 
 import { useMemo } from 'react'
 import { useContentStore } from '@/lib/store'
-import { calculateWorkload, getHighPriorityItems } from '@/lib/workload-utils'
+import { calculateWorkload, calculatePICPerformance } from '@/lib/workload-utils'
 import type { ContentItem } from '@/lib/types'
 
 export function WorkloadMonitor() {
   const { items } = useContentStore()
 
   const workloadData = useMemo(() => calculateWorkload(items), [items])
+  const picPerformance = useMemo(() => calculatePICPerformance(items), [items])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -115,6 +116,49 @@ export function WorkloadMonitor() {
                 </div>
               )
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Dashboard Performa per-PIC */}
+      <div className="space-y-2">
+        <p className="text-xs font-mono text-[#b8b8b0] uppercase tracking-wider">PERFORMA PER-PIC (KONTEN PUBLISH)</p>
+
+        {picPerformance.length === 0 ? (
+          <div className="text-center py-8 text-[#b8b8b0] text-sm">
+            Belum ada konten Publish buat dinilai
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-[#4d4d47] text-[#b8b8b0] font-mono text-[10px] uppercase">
+                  <th className="text-left py-2 pr-2">PIC</th>
+                  <th className="text-right py-2 px-2">Published</th>
+                  <th className="text-right py-2 px-2">Views</th>
+                  <th className="text-right py-2 px-2">Engagement</th>
+                  <th className="text-right py-2 px-2">Avg ER%</th>
+                  <th className="text-left py-2 pl-2">Top Konten</th>
+                </tr>
+              </thead>
+              <tbody>
+                {picPerformance.map((p, idx) => (
+                  <tr key={p.name} className="border-b border-[#4d4d47]/50">
+                    <td className="py-2 pr-2 font-mono text-[#f2efe9]">
+                      {idx === 0 && <span className="text-[#c1ff1a] mr-1">★</span>}
+                      {p.name}
+                    </td>
+                    <td className="text-right py-2 px-2 text-[#b8b8b0]">{p.published}</td>
+                    <td className="text-right py-2 px-2 text-[#b8b8b0]">{p.totalViews.toLocaleString('id-ID')}</td>
+                    <td className="text-right py-2 px-2 text-[#c1ff1a] font-bold">{p.totalEngagement.toLocaleString('id-ID')}</td>
+                    <td className="text-right py-2 px-2 text-[#b8b8b0]">{p.avgEngagementRate.toFixed(1)}%</td>
+                    <td className="py-2 pl-2 text-[#b8b8b0] truncate max-w-[200px]" title={p.topContent?.title}>
+                      {p.topContent?.title || '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
