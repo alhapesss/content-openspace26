@@ -12,6 +12,7 @@ export function contentToRow(c: ContentItem) {
     pillar: c.pillar,
     status: c.status,
     date: c.date,
+    deadline: c.deadline ?? null,
     shoot_date: c.shootDate,
     shoot_location: c.shootLocation,
     pic: c.pic,
@@ -47,6 +48,7 @@ export function contentToRow(c: ContentItem) {
     archived: c.archived ?? false,
     archived_at: c.archivedAt ?? null,
     google_event_id: c.googleEventId ?? null,
+    google_event_id_deadline: c.googleEventIdDeadline ?? null,
   }
 }
 
@@ -60,6 +62,7 @@ export function rowToContent(r: any): ContentItem {
     pillar: r.pillar ?? '',
     status: r.status,
     date: r.date ?? '',
+    deadline: r.deadline ?? undefined,
     shootDate: r.shoot_date ?? '',
     shootLocation: r.shoot_location ?? '',
     pic: r.pic ?? '',
@@ -95,6 +98,7 @@ export function rowToContent(r: any): ContentItem {
     archived: r.archived ?? false,
     archivedAt: r.archived_at ?? undefined,
     googleEventId: r.google_event_id ?? undefined,
+    googleEventIdDeadline: r.google_event_id_deadline ?? undefined,
   }
 }
 

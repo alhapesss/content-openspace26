@@ -54,8 +54,8 @@ export function CalendarView({ items, onOpenItem }: CalendarViewProps) {
     setSyncing(true)
     setSyncMsg('')
     try {
-      const result = await syncItemsToGoogleCalendar(items, (itemId, googleEventId) => {
-        updateItem(itemId, { googleEventId })
+      const result = await syncItemsToGoogleCalendar(items, (itemId, field, googleEventId) => {
+        updateItem(itemId, { [field]: googleEventId })
       })
       setSyncMsg(
         `Sync selesai: ${result.synced} berhasil${result.failed ? `, ${result.failed} gagal` : ''}.`

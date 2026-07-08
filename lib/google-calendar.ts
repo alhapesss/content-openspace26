@@ -98,22 +98,25 @@ async function getValidToken(): Promise<string> {
   return requestGoogleAccessToken()
 }
 
-function eventPayloadFromItem(item: ContentItem, allDay = true) {
+function eventPayloadFromItem(item: ContentItem, kind: 'publish' | 'deadline') {
+  const isDeadline = kind === 'deadline'
+  const dateStr = isDeadline ? item.deadline : item.date
   const description = [
     `Format: ${item.format}${item.subformat ? ' - ' + item.subformat : ''}`,
     item.pillar ? `Pilar: ${item.pillar}` : '',
     `Platform: ${item.platform}`,
     item.pic ? `PIC: ${item.pic}` : '',
     item.status ? `Status: ${item.status}` : '',
+    isDeadline ? 'Deadline produksi — bukan tanggal publish.' : '',
   ]
     .filter(Boolean)
     .join('\n')
 
   return {
-    summary: `[${item.status}] ${item.title || '(tanpa judul)'}`,
+    summary: `[${isDeadline ? 'Deadline' : item.status}] ${item.title || '(tanpa judul)'}`,
     description,
-    start: { date: item.date },
-    end: { date: item.date },
+    start: { date: dateStr },
+    end: { date: dateStr },
   }
 }
 
@@ -140,38 +143,62 @@ export interface SyncResult {
   errors: string[]
 }
 
-// Sync semua item yang punya tanggal ke Google Calendar (primary).
-// Item yang udah punya googleEventId di-update, yang belum dibikin baru.
-// onItemSynced dipanggil tiap item berhasil, buat nyimpen googleEventId balik ke store.
+// Sync semua item ke Google Calendar (primary): tiap konten bisa kirim 2 event —
+// [Deadline] (kalau field deadline diisi) dan [Publish/status] (kalau tanggal publish diisi).
+// Item yang udah punya googleEventId/googleEventIdDeadline di-update, yang belum dibikin baru.
+// onItemSynced dipanggil tiap event berhasil, buat nyimpen id-nya balik ke store.
 export async function syncItemsToGoogleCalendar(
   items: ContentItem[],
-  onItemSynced: (itemId: string, googleEventId: string) => void
+  onItemSynced: (itemId: string, field: 'googleEventId' | 'googleEventIdDeadline', googleEventId: string) => void
 ): Promise<SyncResult> {
   const token = await getValidToken()
   const result: SyncResult = { synced: 0, failed: 0, errors: [] }
 
-  const withDate = items.filter((i) => !!i.date)
-
-  for (const item of withDate) {
-    try {
-      const payload = eventPayloadFromItem(item)
-      if (item.googleEventId) {
-        await apiFetch(`/calendars/primary/events/${item.googleEventId}`, token, {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        })
+  for (const item of items) {
+    // Event tanggal publish
+    if (item.date) {
+      try {
+        const payload = eventPayloadFromItem(item, 'publish')
+        if (item.googleEventId) {
+          await apiFetch(`/calendars/primary/events/${item.googleEventId}`, token, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+          })
+        } else {
+          const created = await apiFetch('/calendars/primary/events', token, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          })
+          onItemSynced(item.id, 'googleEventId', created.id)
+        }
         result.synced++
-      } else {
-        const created = await apiFetch('/calendars/primary/events', token, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-        onItemSynced(item.id, created.id)
-        result.synced++
+      } catch (err) {
+        result.failed++
+        result.errors.push(`${item.title || item.id} (publish): ${(err as Error).message}`)
       }
-    } catch (err) {
-      result.failed++
-      result.errors.push(`${item.title || item.id}: ${(err as Error).message}`)
+    }
+
+    // Event tanggal deadline
+    if (item.deadline) {
+      try {
+        const payload = eventPayloadFromItem(item, 'deadline')
+        if (item.googleEventIdDeadline) {
+          await apiFetch(`/calendars/primary/events/${item.googleEventIdDeadline}`, token, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+          })
+        } else {
+          const created = await apiFetch('/calendars/primary/events', token, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          })
+          onItemSynced(item.id, 'googleEventIdDeadline', created.id)
+        }
+        result.synced++
+      } catch (err) {
+        result.failed++
+        result.errors.push(`${item.title || item.id} (deadline): ${(err as Error).message}`)
+      }
     }
   }
 

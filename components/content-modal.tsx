@@ -232,7 +232,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
       className="fixed inset-0 bg-black/65 flex items-center justify-center z-50 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-[#262622] border border-[#4d4d47] rounded-md p-5 w-full max-w-[480px] max-h-[92vh] overflow-y-auto relative">
+      <div className="bg-[#262622] border border-[#4d4d47] rounded-md p-6 w-full max-w-[640px] max-h-[92vh] overflow-y-auto relative">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-extrabold uppercase tracking-wide">
             {item && item.id ? 'Edit Konten' : 'Konten Baru'}
@@ -328,7 +328,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           />
         </Field>
 
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <Field label="Platform">
             <select className={selectCls} value={form.platform} onChange={(e) => handlePlatformChange(e.target.value)}>
               {ALL_PLATFORMS.map((p) => <option key={p}>{p}</option>)}
@@ -357,33 +357,38 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           </Field>
         </div>
 
-        <Field label="Pilar Konten">
-          <input
-            className={inputCls}
-            list="pillarList"
-            value={form.pillar}
-            onChange={(e) => set('pillar', e.target.value)}
-            placeholder="pilih atau ketik baru..."
-          />
-          <datalist id="pillarList">
-            {pillarOptions.map((p) => <option key={p} value={p} />)}
-          </datalist>
-        </Field>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <Field label="Pilar Konten">
+            <input
+              className={inputCls}
+              list="pillarList"
+              value={form.pillar}
+              onChange={(e) => set('pillar', e.target.value)}
+              placeholder="pilih atau ketik baru..."
+            />
+            <datalist id="pillarList">
+              {pillarOptions.map((p) => <option key={p} value={p} />)}
+            </datalist>
+          </Field>
 
-        <Field label="Sub-Format">
-          <input
-            className={inputCls}
-            list="subList"
-            value={form.subformat}
-            onChange={(e) => set('subformat', e.target.value)}
-            placeholder="pilih atau ketik baru..."
-          />
-          <datalist id="subList">
-            {subformatOptions.map((s) => <option key={s} value={s} />)}
-          </datalist>
-        </Field>
+          <Field label="Sub-Format">
+            <input
+              className={inputCls}
+              list="subList"
+              value={form.subformat}
+              onChange={(e) => set('subformat', e.target.value)}
+              placeholder="pilih atau ketik baru..."
+            />
+            <datalist id="subList">
+              {subformatOptions.map((s) => <option key={s} value={s} />)}
+            </datalist>
+          </Field>
+        </div>
 
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <Field label="Tanggal Deadline">
+            <input className={inputCls} type="date" value={form.deadline || ''} onChange={(e) => set('deadline', e.target.value)} />
+          </Field>
           <Field label="Tanggal Publish *">
             <input className={inputCls} type="date" value={form.date} onChange={(e) => set('date', e.target.value)} required />
           </Field>
@@ -395,7 +400,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
         </div>
 
         {showShootDate && (
-          <div className="flex gap-2 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <Field label="Jadwal Take Content (video)">
               <input className={inputCls} type="datetime-local" value={form.shootDate} onChange={(e) => set('shootDate', e.target.value)} />
             </Field>
@@ -405,7 +410,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           </div>
         )}
 
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <Field label="PIC Graphic Design">
             <select className={selectCls} value={form.picGraphic} onChange={(e) => set('picGraphic', e.target.value)}>
               {byRole('Graphic Designer').map((n) => <option key={n} value={n}>{n || '— pilih —'}</option>)}
@@ -418,7 +423,7 @@ export function ContentModal({ item, onClose }: ContentModalProps) {
           </Field>
         </div>
 
-        <div className="flex gap-2 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <Field label="Talent">
             <select className={selectCls} value={form.picTalent} onChange={(e) => set('picTalent', e.target.value)}>
               {byRole('Talent / Presenter').map((n) => <option key={n} value={n}>{n || '— pilih —'}</option>)}

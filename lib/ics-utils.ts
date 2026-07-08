@@ -65,6 +65,26 @@ export function generateICS(items: ContentItem[], options: ICSExportOptions = {}
   ]
 
   items.forEach((item) => {
+    if (item.deadline) {
+      const summary = `[Deadline] ${item.title || '(tanpa judul)'}`
+      const descParts = [
+        `Format: ${item.format}${item.subformat ? ' - ' + item.subformat : ''}`,
+        item.pillar ? `Pilar: ${item.pillar}` : '',
+        item.pic ? `PIC: ${item.pic}` : '',
+        'Deadline produksi — bukan tanggal publish.',
+      ].filter(Boolean)
+
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${item.id}-deadline@openspace-content`,
+        `DTSTAMP:${nowStamp()}`,
+        `DTSTART;VALUE=DATE:${toICSDate(item.deadline)}`,
+        `SUMMARY:${escapeICS(summary)}`,
+        `DESCRIPTION:${escapeICS(descParts.join('\\n'))}`,
+        'END:VEVENT'
+      )
+    }
+
     if (item.date) {
       const summary = `[${item.status}] ${item.title || '(tanpa judul)'}`
       const descParts = [

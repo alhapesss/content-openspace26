@@ -13,6 +13,7 @@ export interface ContentItem {
   pillar: string
   status: string
   date: string
+  deadline?: string // tanggal deadline produksi (sebelum publish)
   shootDate: string
   shootLocation: string
   pic: string
@@ -52,6 +53,7 @@ export interface ContentItem {
   archivedAt?: number
   // Google Calendar sync (event id, biar update bukan bikin duplikat)
   googleEventId?: string
+  googleEventIdDeadline?: string
 }
 
 export interface AccountData {
