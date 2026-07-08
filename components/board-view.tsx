@@ -185,7 +185,7 @@ export function BoardView({ items, onOpenItem }: BoardViewProps) {
               <span className="font-mono text-[11px] text-[#b8b8b0]">{colItems.length}</span>
             </div>
             <div
-              className="flex-1 p-2.5 min-h-[120px]"
+              className="flex-1 p-2.5 min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto"
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => handleDrop(status)}
             >
