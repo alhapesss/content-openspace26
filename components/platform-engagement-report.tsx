@@ -91,7 +91,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
           onClick={() => setSortBy('engagement')}
           className={`px-3 py-1 text-xs font-mono rounded border transition-colors ${
             sortBy === 'engagement'
-              ? 'bg-accent text-background border-accent'
+              ? 'bg-[#c1ff1a] text-[#0a0a0a] border-[#c1ff1a]'
               : 'border-border text-muted-foreground hover:border-foreground'
           }`}
         >
@@ -101,7 +101,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
           onClick={() => setSortBy('views')}
           className={`px-3 py-1 text-xs font-mono rounded border transition-colors ${
             sortBy === 'views'
-              ? 'bg-accent text-background border-accent'
+              ? 'bg-[#c1ff1a] text-[#0a0a0a] border-[#c1ff1a]'
               : 'border-border text-muted-foreground hover:border-foreground'
           }`}
         >
@@ -111,7 +111,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
           onClick={() => setSortBy('published')}
           className={`px-3 py-1 text-xs font-mono rounded border transition-colors ${
             sortBy === 'published'
-              ? 'bg-accent text-background border-accent'
+              ? 'bg-[#c1ff1a] text-[#0a0a0a] border-[#c1ff1a]'
               : 'border-border text-muted-foreground hover:border-foreground'
           }`}
         >
@@ -141,7 +141,7 @@ export function PlatformEngagementReport({ report }: PlatformEngagementReportPro
                     <span
                       className={`text-xs px-2 py-1 rounded font-mono ${
                         isActive
-                          ? 'bg-accent text-background'
+                          ? 'bg-[#c1ff1a] text-[#0a0a0a]'
                           : 'bg-border text-muted-foreground'
                       }`}
                     >

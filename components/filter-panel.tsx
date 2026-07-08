@@ -106,8 +106,8 @@ export function FilterPanel() {
                   onClick={() => handleAddStatus(status)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     currentFilter.statuses.includes(status)
-                      ? 'bg-accent text-background'
-                      : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
+                      ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                      : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                   }`}
                 >
                   {status}
@@ -126,8 +126,8 @@ export function FilterPanel() {
                   onClick={() => handleAddPlatform(platform)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     currentFilter.platforms.includes(platform)
-                      ? 'bg-accent text-background'
-                      : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
+                      ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                      : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                   }`}
                 >
                   {platform}
@@ -146,8 +146,8 @@ export function FilterPanel() {
                   onClick={() => handleAddFormat(format)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     currentFilter.formats.includes(format)
-                      ? 'bg-accent text-background'
-                      : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
+                      ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                      : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                   }`}
                 >
                   {format}
@@ -166,8 +166,8 @@ export function FilterPanel() {
                   onClick={() => handleAddPillar(pillar)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     currentFilter.pillars.includes(pillar)
-                      ? 'bg-accent text-background'
-                      : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
+                      ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                      : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                   }`}
                 >
                   {pillar}
@@ -187,8 +187,8 @@ export function FilterPanel() {
                     onClick={() => handleAddTeam(member.name)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       currentFilter.team.includes(member.name)
-                        ? 'bg-accent text-background'
-                        : 'bg-muted text-muted-foreground hover:bg-muted-foreground/20'
+                        ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                        : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                     }`}
                   >
                     {member.name}

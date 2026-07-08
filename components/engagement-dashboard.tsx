@@ -216,7 +216,7 @@ export function EngagementDashboard() {
                 onClick={() => togglePlatform(platform)}
                 className={`px-3 py-1 text-xs font-mono rounded-sm border transition-colors ${
                   selectedPlatforms.includes(platform)
-                    ? 'bg-accent text-background border-accent'
+                    ? 'bg-[#c1ff1a] text-[#0a0a0a] border-[#c1ff1a]'
                     : 'border-border text-muted-foreground hover:border-foreground'
                 }`}
               >

@@ -73,7 +73,7 @@ export function AdvancedReportView() {
         <h2 className="text-2xl font-bold text-foreground">Reports</h2>
         <Button
           onClick={() => setShowBuilder(!showBuilder)}
-          className="bg-accent text-background hover:bg-accent/80"
+          className="bg-[#c1ff1a] text-[#0a0a0a] hover:brightness-105"
         >
           {showBuilder ? 'Cancel' : 'New Report'}
         </Button>
@@ -137,8 +137,8 @@ export function AdvancedReportView() {
                         }}
                         className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                           builderData.filters.statuses.includes(s)
-                            ? 'bg-accent text-background'
-                            : 'bg-muted text-muted-foreground'
+                            ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                            : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                         }`}
                       >
                         {s}
@@ -166,8 +166,8 @@ export function AdvancedReportView() {
                         }}
                         className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                           builderData.filters.platforms.includes(p)
-                            ? 'bg-accent text-background'
-                            : 'bg-muted text-muted-foreground'
+                            ? 'bg-[#c1ff1a] text-[#0a0a0a]'
+                            : 'bg-muted text-muted-foreground border border-transparent hover:border-foreground/30'
                         }`}
                       >
                         {p}
@@ -183,7 +183,7 @@ export function AdvancedReportView() {
             <Button
               onClick={handleCreateReport}
               disabled={!builderData.name.trim()}
-              className="bg-accent text-background"
+              className="bg-[#c1ff1a] text-[#0a0a0a]"
             >
               Create Report
             </Button>
@@ -351,7 +351,7 @@ export function AdvancedReportView() {
           <p className="mb-4">No reports yet</p>
           <Button
             onClick={() => setShowBuilder(true)}
-            className="bg-accent text-background hover:bg-accent/80"
+            className="bg-[#c1ff1a] text-[#0a0a0a] hover:brightness-105"
           >
             Create Your First Report
           </Button>
