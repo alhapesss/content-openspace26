@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx'
 import type { ContentItem } from './types'
 
 // Kolom yang keluar dari export Meta Business Suite (Insights > Export)
@@ -58,26 +57,81 @@ const num = (v: unknown): number => {
   return Number.isFinite(n) ? n : 0
 }
 
-export function parseMetaCsv(fileText: string): MetaRow[] {
-  const wb = XLSX.read(fileText, { type: 'string' })
-  const sheet = wb.Sheets[wb.SheetNames[0]]
-  const raw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+/**
+ * Parser CSV manual (bukan lewat lib xlsx) — soalnya xlsx suka nebak tipe kolom
+ * "Publish time" jadi angka/tanggal Excel, bikin teks tanggal aslinya rusak.
+ * Ini nangani quoted field yang isinya koma/newline (caption Instagram sering gitu).
+ */
+function parseCsvText(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ''
+  let inQuotes = false
+  const src = text.replace(/^\uFEFF/, '') // buang BOM kalau ada
 
-  return raw
-    .filter((r) => String(r['Post ID'] || '').trim())
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i]
+    if (inQuotes) {
+      if (c === '"') {
+        if (src[i + 1] === '"') { field += '"'; i++ }
+        else inQuotes = false
+      } else {
+        field += c
+      }
+    } else if (c === '"') {
+      inQuotes = true
+    } else if (c === ',') {
+      row.push(field); field = ''
+    } else if (c === '\r') {
+      // skip, ditangani bareng \n
+    } else if (c === '\n') {
+      row.push(field); field = ''
+      rows.push(row); row = []
+    } else {
+      field += c
+    }
+  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row) }
+  return rows.filter((r) => r.some((f) => f.trim() !== ''))
+}
+
+export function parseMetaCsv(fileText: string): MetaRow[] {
+  const rows = parseCsvText(fileText)
+  if (rows.length < 2) return []
+  const header = rows[0].map((h) => h.trim())
+  const idx = (name: string) => header.indexOf(name)
+
+  const col = {
+    postId: idx('Post ID'),
+    account: idx('Account username'),
+    description: idx('Description'),
+    publishTime: idx('Publish time'),
+    permalink: idx('Permalink'),
+    postType: idx('Post type'),
+    views: idx('Views'),
+    reach: idx('Reach'),
+    likes: idx('Likes'),
+    shares: idx('Shares'),
+    comments: idx('Comments'),
+    saves: idx('Saves'),
+  }
+
+  return rows
+    .slice(1)
+    .filter((r) => (col.postId >= 0 ? r[col.postId]?.trim() : ''))
     .map((r) => ({
-      postId: String(r['Post ID'] || ''),
-      accountUsername: String(r['Account username'] || ''),
-      description: String(r['Description'] || ''),
-      publishTime: String(r['Publish time'] || ''),
-      permalink: String(r['Permalink'] || ''),
-      postType: String(r['Post type'] || ''),
-      views: num(r['Views']),
-      reach: num(r['Reach']),
-      likes: num(r['Likes']),
-      shares: num(r['Shares']),
-      comments: num(r['Comments']),
-      saves: num(r['Saves']),
+      postId: r[col.postId] || '',
+      accountUsername: r[col.account] || '',
+      description: r[col.description] || '',
+      publishTime: r[col.publishTime] || '',
+      permalink: r[col.permalink] || '',
+      postType: r[col.postType] || '',
+      views: num(r[col.views]),
+      reach: num(r[col.reach]),
+      likes: num(r[col.likes]),
+      shares: num(r[col.shares]),
+      comments: num(r[col.comments]),
+      saves: num(r[col.saves]),
     }))
 }
 
