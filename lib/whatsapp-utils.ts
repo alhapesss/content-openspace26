@@ -40,9 +40,17 @@ export function getInvolvedTeamMembers(names: string[], team: TeamMember[]): Tea
     .filter((m): m is TeamMember => !!m && !!m.phone)
 }
 
-/** Susun pesan WA default dari isi notifikasi + judul konten */
-export function buildNotificationMessage(notification: Notification, item?: ContentItem): string {
-  const lines = [notification.title, notification.message]
+/** Susun pesan WA default dari isi notifikasi + judul konten, plus sapaan nama & link buka konten */
+export function buildNotificationMessage(
+  notification: Notification,
+  item?: ContentItem,
+  recipientName?: string,
+  siteUrl?: string
+): string {
+  const lines: string[] = []
+  if (recipientName) lines.push(`Halo ${recipientName},`)
+  lines.push(notification.title, notification.message)
   if (item) lines.push(`Konten: ${item.title}`)
+  if (item && siteUrl) lines.push(`Buka: ${siteUrl}?content=${item.id}`)
   return lines.filter(Boolean).join('\n')
 }
