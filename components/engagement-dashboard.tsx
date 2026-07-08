@@ -249,7 +249,7 @@ export function EngagementDashboard() {
           <div className="text-xs font-mono text-muted-foreground mb-2">
             AVG ENGAGEMENT RATE {totalMetrics.usedReachForERR ? '(by Reach)' : '(by Views)'}
           </div>
-          <div className="text-2xl font-bold text-accent">
+          <div className="text-2xl font-bold text-foreground">
             {totalMetrics.avgEngagementRate.toFixed(2)}%
           </div>
           {!totalMetrics.usedReachForERR && (
